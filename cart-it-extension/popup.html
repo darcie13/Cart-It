@@ -1,0 +1,204 @@
+<!--
+Cart-It Chrome Extension Popup UI
+Allows users to scrape product data from current page and save it to their cart/wishlist system
+-->
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      /* THEME VARIABLES */
+      :root {
+        --primary-color: #DB8046;
+        --bg-color: #f9f9f9;
+        --text-color: #333;
+      }
+
+      /* BASE POPUP LAYOUT */
+      body {
+        width: 300px;
+        padding: 0;
+        margin: 0;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f4f4f6;
+      }
+
+      h3 {
+        margin-top: 0;
+        color: #1a1a1a;
+        font-size: 18px;
+        border-bottom: 2px solid var(--primary-color);
+        padding-bottom: 5px;
+      }
+
+      /* PRODUCT IMAGE */
+      #product-img {
+        width: 100%;
+        max-height: 160px;
+        object-fit: contain;
+        border-radius: 10px;
+        margin: 10px 0;
+        background: #fafafa;
+        border: 1px solid #eee;
+      }
+
+      /* UI CONTAINERS */
+      #main-ui,
+      #success-ui {
+        padding: 16px;
+        margin: 12px;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 6px 18px rgba(0,0,0,0.08);
+      }
+
+      #success-ui {
+        text-align: center;
+        padding: 24px;
+      }
+
+      /* PRODUCT TEXT STYLING */
+      #product-name {
+        font-weight: 600;
+        font-size: 14px;
+        margin: 8px 0;
+        color: #222;
+      }
+
+      #product-name a {
+        color: #DB8046;
+        text-decoration: none;
+        font-weight: 600;
+      }
+
+      #product-name a:hover {
+        text-decoration: underline;
+      }
+
+      #product-price {
+        font-weight: 700;
+        color: #2e7d32;
+        margin-bottom: 12px;
+        font-size: 15px;
+      }
+
+      /* FORM ELEMENTS */
+      .field {
+        margin-bottom: 15px;
+      }
+
+      label {
+        font-size: 11px;
+        color: #777;
+        margin-bottom: 4px;
+        font-weight: 600;
+        letter-spacing: 0.3px;
+      }
+
+      select,
+      textarea {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+      }
+
+      /* BUTTON STYLING */
+      button {
+        width: 100%;
+        padding: 12px;
+        cursor: pointer;
+        background: linear-gradient(135deg, #DB8046, #c96a33);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: all 0.2s ease;
+      }
+
+      button:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 12px rgba(219, 128, 70, 0.25);
+      }
+
+      button:disabled {
+        background: #ccc;
+        cursor: not-allowed;
+      }
+
+      /* LOADING ANIMATION */
+      #loader {
+        animation: pulse 1.2s infinite;
+      }
+
+      @keyframes pulse {
+        0% { opacity: 0.5; }
+        50% { opacity: 1; }
+        100% { opacity: 0.5; }
+      }
+
+      /* SUCCESS UI */
+      #success-msg {
+        font-weight: 600;
+        color: #222;
+        margin: 10px 0;
+        line-height: 1.4;
+      }
+
+      #redirect-link {
+        color: #DB8046;
+        font-weight: 600;
+        text-decoration: none;
+        border-bottom: 1px solid #DB8046;
+      }
+
+      #redirect-link:hover {
+        opacity: 0.8;
+      }
+    </style>
+  </head>
+
+  <body>
+
+    <!-- MAIN EXTENSION UI -->
+    <div id="main-ui">
+      <h3>Cart-It</h3>
+
+      <!-- Loader shown while scraping product data -->
+      <div id="loader" style="display: none; text-align: center; color: #888; font-size: 13px;">
+        Fetching details...
+      </div>
+
+      <!-- Scraped product preview -->
+      <img id="product-img" src="" alt="" />
+      <p id="product-name"></p>
+      <p id="product-price"></p>
+
+      <!-- Wishlist selection -->
+      <div class="field">
+        <label>Select List</label>
+        <select id="listSelect">
+          <option value="">My Cart (Default)</option>
+        </select>
+      </div>
+
+      <!-- Optional user notes -->
+      <div class="field">
+        <label>Notes (optional)</label>
+        <textarea id="notes" placeholder="e.g., Runs small" rows="2" maxlength="500"></textarea>
+      </div>
+
+      <button id="saveBtn">Cart It!</button>
+    </div>
+
+    <!-- SUCCESS SCREEN AFTER ITEM IS SAVED -->
+    <div id="success-ui" style="display: none;">
+      <div style="font-size: 40px; margin-bottom: 10px;">Success!</div>
+      <p id="success-msg"></p>
+      <a id="redirect-link"></a>
+    </div>
+
+    <script src="popup.js"></script>
+  </body>
+</html>
