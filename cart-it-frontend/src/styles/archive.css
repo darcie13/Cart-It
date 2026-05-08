@@ -1,0 +1,98 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+
+  /* Header */
+  .archive-header {
+    @apply flex items-center justify-between mb-10;
+  }
+
+  .archive-header h1 {
+    @apply text-4xl font-bold text-gray-900;
+  }
+
+  .archive-header p {
+    @apply text-gray-500 mt-2;
+  }
+
+  /* Empty Trash Button */
+  .empty-trash-btn {
+    @apply flex items-center gap-2 px-5 py-3 rounded-xl
+    bg-red-600 text-white font-semibold shadow-sm
+    hover:bg-red-700 transition-all;
+  }
+
+  /* Loading / Empty State */
+  .archive-state {
+    @apply flex items-center justify-center
+    text-gray-400 text-lg h-64;
+  }
+
+  /* Grid */
+  .archive-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 24px;
+  }
+
+  /* Archived Cards */
+  .archive-card {
+    @apply bg-gray-100 border border-gray-200 rounded-2xl
+    p-6 shadow-sm opacity-70 grayscale
+    hover:shadow-md transition-all relative;
+  }
+
+  .archive-info h3 {
+    @apply text-xl font-bold text-gray-800 mb-2;
+  }
+
+  .archive-info p {
+    @apply text-sm text-gray-500;
+  }
+
+  .archived-date {
+    @apply block mt-3 text-xs uppercase tracking-wide text-gray-400;
+  }
+
+  /* Actions */
+  .archive-actions {
+    @apply mt-6 flex justify-end;
+  }
+
+  .delete-btn {
+    @apply flex items-center gap-2 px-4 py-2 rounded-lg
+    bg-red-600 text-white text-sm font-medium
+    hover:bg-red-700 transition-all;
+  }
+
+  /* Confirm Overlay */
+  .confirm-overlay {
+    @apply fixed inset-0 bg-black/50 z-50
+    flex items-center justify-center;
+  }
+
+  .confirm-box {
+    @apply bg-white rounded-2xl p-6 shadow-2xl
+    max-w-sm w-full;
+  }
+
+  .confirm-box p {
+    @apply text-gray-700 font-medium mb-5;
+  }
+
+  .confirm-actions {
+    @apply flex justify-end gap-3;
+  }
+
+  .confirm-actions button {
+    @apply px-4 py-2 rounded-lg border border-gray-300
+    hover:bg-gray-100 transition-all;
+  }
+
+  .confirm-actions .danger {
+    @apply bg-red-600 text-white border-none
+    hover:bg-red-700;
+  }
+}
