@@ -17,9 +17,11 @@ const app = express();
 
 app.use(express.json());
 const allowedOrigins = [
-  'http://localhost:3000',
-  'http://localhost:3001',
-  'https://cart-it.app'
+  "http://localhost:3000",
+  "http://localhost:3001",
+  "https://cart-it.app",
+  "https://cart-it-pink.vercel.app",
+  "https://cart-it-aflx.onrender.com"
 ];
 
 app.use(cors({

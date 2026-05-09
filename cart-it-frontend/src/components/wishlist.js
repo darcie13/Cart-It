@@ -192,7 +192,7 @@ const Wishlist = () => {
       if (actionType === 'remove') {
         await removeItemsFromWishlist(selectedIds);
       } else if (actionType === 'purge') {
-        await bulkDeleteItems(selectedId);
+        await bulkDeleteItems(selectedIds);
       }
 
       setItems(items.filter(item => !selectedIds.includes(item.item_id)));
@@ -208,16 +208,22 @@ const Wishlist = () => {
 
   // Function to handle deleting the entire wishlist, with a confirmation step to prevent accidental deletion
   const handleDeleteWishlist = async () => {
-    if (isConfirming !== 'delete-list') {
-      setIsConfirming('delete-list');
-      setTimeout(() => setIsConfirming(null), 4000);
-      return;
-    }
+  if (isConfirming !== 'delete-list') {
+    setIsConfirming('delete-list');
+    setTimeout(() => setIsConfirming(null), 4000);
+    return;
+  }
 
-      await deleteWishlist(id, user.user_id);
-      navigate('/dashboard');
-    
-  };
+  try {
+    const user = JSON.parse(localStorage.getItem('user'));
+
+    await deleteWishlist(id, user.user_id);
+
+    navigate('/dashboard');
+  } catch (err) {
+    console.error("Failed to delete wishlist:", err);
+  }
+};
 
   // Function to handle adding a collaborator to the wishlist by email
   const handleCollab = async () => {
