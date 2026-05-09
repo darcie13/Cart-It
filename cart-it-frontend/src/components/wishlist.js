@@ -214,14 +214,9 @@ const Wishlist = () => {
       return;
     }
 
-    try {
       await deleteWishlist(id, user.user_id);
-      if (res.ok) {
-        navigate('/dashboard');
-      }
-    } catch (err) {
-      console.error("Failed to delete wishlist:", err);
-    }
+      navigate('/dashboard');
+    
   };
 
   // Function to handle adding a collaborator to the wishlist by email
