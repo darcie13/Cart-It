@@ -1,6 +1,5 @@
 import React from "react";
-import { LuDownload, LuArrowRight } from "react-icons/lu";
-import { CircleCheck } from 'lucide-react';
+import { LuDownload, LuArrowRight, LuCircleCheckBig } from "react-icons/lu";
 
 const ExtensionInstall = () => {
   return (
@@ -34,7 +33,7 @@ const ExtensionInstall = () => {
 
           {/* Step 1 */}
           <div className="flex gap-4 items-start">
-            <CircleCheck className="text-green-500 mt-1" size={22} />
+            <LuCircleCheckBig className="text-green-500 mt-1" size={22} />
             <div>
               <h3 className="font-semibold text-gray-800">
                 Step 1: Unzip the file
@@ -52,7 +51,7 @@ const ExtensionInstall = () => {
 
           {/* Step 2 */}
           <div className="flex gap-4 items-start">
-            <CircleCheck className="text-green-500 mt-1" size={22} />
+            <LuCircleCheckBig className="text-green-500 mt-1" size={22} />
             <div>
               <h3 className="font-semibold text-gray-800">
                 Step 2: Open Chrome Extensions
@@ -69,7 +68,7 @@ const ExtensionInstall = () => {
 
           {/* Step 3 */}
           <div className="flex gap-4 items-start">
-            <CircleCheck className="text-green-500 mt-1" size={22} />
+            <LuCircleCheckBig className="text-green-500 mt-1" size={22} />
             <div>
               <h3 className="font-semibold text-gray-800">
                 Step 3: Enable Developer Mode
@@ -86,7 +85,7 @@ const ExtensionInstall = () => {
 
           {/* Step 4 */}
           <div className="flex gap-4 items-start">
-            <CircleCheck className="text-green-500 mt-1" size={22} />
+            <LuCircleCheckBig className="text-green-500 mt-1" size={22} />
             <div>
               <h3 className="font-semibold text-gray-800">
                 Step 4: Load the Extension
