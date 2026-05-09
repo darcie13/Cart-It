@@ -190,7 +190,7 @@ const Wishlist = () => {
       if (actionType === 'remove') {
         await removeItemsFromWishlist(selectedIds);
       } else if (actionType === 'purge') {
-        await fetch('http://localhost:3000/api/items/bulk', {
+        await fetch(`${API_BASE}/items/bulk`, {
           method: 'DELETE',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ ids: selectedIds })
@@ -217,7 +217,7 @@ const Wishlist = () => {
     }
 
     try {
-      const res = await fetch(`http://localhost:3000/api/wishlists/${id}`, { method: 'DELETE' });
+      const res = await fetch(`${API_BASE}/wishlists/${id}`, { method: 'DELETE' });
       if (res.ok) {
         navigate('/dashboard');
       }

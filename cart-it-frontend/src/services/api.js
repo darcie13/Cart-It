@@ -4,7 +4,7 @@
  * Handles authentication, item management, wishlist operations, and web scraping
  */
 
-const API_BASE = 'http://localhost:3000/api';
+const API_BASE = 'https://cart-it-aflx.onrender.com/api';
 
 // Helper to get the current token from localStorage
 export const getAuthHeader = () => {

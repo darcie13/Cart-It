@@ -124,7 +124,7 @@ router.post("/forgot-password", async (req, res) => {
                                 Hi <strong>${user.username}</strong>, we received a request to reset your password. 
                                 Click the button below to choose a new one. This link expires in 1 hour.
                             </p>
-                            <a href="http://localhost:3001/reset-password/${token}" 
+                            <a href="https://cart-it-aflx.onrender.com/reset-password/${token}" 
                                style="display: inline-block; background-color: #DB8046; color: #ffffff; padding: 14px 28px; border-radius: 10px; text-decoration: none; font-weight: bold; margin-top: 20px;">
                                 Reset Password
                             </a>

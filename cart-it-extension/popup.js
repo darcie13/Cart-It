@@ -116,7 +116,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const productPriceEl = document.getElementById('product-price');
   const notesField = document.getElementById('notes');
 
-  const loginUrl = 'http://localhost:3001/login';
+  const loginUrl = 'https://cart-it-aflx.onrender.com/login';
 
   const showLoginUI = (message) => {
     loader.style.display = 'none';
@@ -156,7 +156,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Fetch user's wishlists from backend
   try {
     const resp = await fetch(
-      `http://localhost:3000/api/wishlists?owner_id=${userId}`,
+      `https://cart-it-aflx.onrender.com/api/wishlists?owner_id=${userId}`,
       {
         headers: { Authorization: `Bearer ${token}` }
       }
@@ -240,7 +240,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Tier 2/3: backend scraper fallback
     if (isBad) {
       const response = await fetch(
-        'http://localhost:3000/api/scrape/preview-scrape',
+        'https://cart-it-aflx.onrender.com/api/scrape/preview-scrape',
         {
           method: 'POST',
           headers: {
@@ -287,7 +287,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     try {
       const response = await fetch(
-        'http://localhost:3000/api/scrape/scrape-and-save',
+        'https://cart-it-aflx.onrender.com/api/scrape/scrape-and-save',
         {
           method: 'POST',
           headers: {
@@ -342,11 +342,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (isWishlist) {
       msg.textContent = `This item has been saved to your ${cleanName} wishlist.`;
       link.textContent = "See your list.";
-      link.dataset.url = `http://localhost:3001/wishlist/${listId}`;
+      link.dataset.url = `https://cart-it-aflx.onrender.com/wishlist/${listId}`;
     } else {
       msg.textContent = "This item has been saved to your cart.";
       link.textContent = "See your cart.";
-      link.dataset.url = "http://localhost:3001/cart";
+      link.dataset.url = "https://cart-it-aflx.onrender.com/cart";
     }
 
     link.style.fontStyle = "italic";

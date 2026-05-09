@@ -18,6 +18,10 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
+app.get('/', (req, res) => {
+  res.send('Cart-It backend is running');
+});
+
 // Route Imports
 const authRoutes = require("./routes/auth-routes");
 const wishlistRoutes = require("./routes/wishlist-routes");
