@@ -9,7 +9,7 @@ In the project directory, you can run:
 ### `npm start`
 
 Runs the app in the development mode.\
-Open [https://cart-it-aflx.onrender.com](https://cart-it-aflx.onrender.com) to view it in your browser.
+Open [https://cart-it.app](https://cart-it.app) to view it in your browser.
 
 The page will reload when you make changes.\
 You may also see any lint errors in the console.

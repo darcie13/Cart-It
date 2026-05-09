@@ -183,7 +183,7 @@ router.post("/collab", async (req, res) => {
                                         <p style="color: #4b5563;">
                                             Hi <strong>${guest.username}</strong>, you've been invited to collaborate on the wishlist: <strong>${wishlistName}</strong>.
                                         </p>
-                                        <a href="https://cart-it-aflx.onrender.com/dashboard" style="display: inline-block; background-color: #DB8046; color: #ffffff; padding: 14px 28px; border-radius: 10px; text-decoration: none; font-weight: bold;">View Dashboard</a>
+                                        <a href="https://cart-it.app/dashboard" style="display: inline-block; background-color: #DB8046; color: #ffffff; padding: 14px 28px; border-radius: 10px; text-decoration: none; font-weight: bold;">View Dashboard</a>
                                     </div>
                                 </div>
                             `

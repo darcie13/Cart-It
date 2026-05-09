@@ -8,13 +8,13 @@
     "service_worker": "background.js"
   },
   "externally_connectable": {
-    "matches": ["https://cart-it-aflx.onrender.com/*"]
+    "matches": ["https://cart-it-pink.vercel.app/*",
+      "https://cart-it.app/*"]
   },
   "action": {
     "default_popup": "popup.html"
   },
-  "host_permissions": ["http://localhost:3000/*",
-  "https://cart-it-aflx.onrender.com"],
+  "host_permissions": ["https://cart-it-aflx.onrender.com/*"],
   "icons": {
     "16": "icons/icon16.png",
     "48": "icons/icon48.png",

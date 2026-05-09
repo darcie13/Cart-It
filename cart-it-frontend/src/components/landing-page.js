@@ -5,10 +5,14 @@
  */
 
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import '../styles/landing.css';
 
 const LandingPage = () => {
+  const navigate = useNavigate();
+  const handleExtensionClick = () => {
+    navigate("/extension-install");
+  };
   return (
     <div className="landing-container">
       {/* Navbar with logo */}
@@ -74,7 +78,7 @@ const LandingPage = () => {
 
           {/* Call to Action: Download extension button */}
           <div className="mt-16">
-            <button className="download-btn">Download Cart-It Extension</button>
+            <button className="download-btn" onClick={handleExtensionClick}>Download Cart-It Extension</button>
           </div>
         </div>
       </section>

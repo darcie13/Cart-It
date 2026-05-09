@@ -116,7 +116,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const productPriceEl = document.getElementById('product-price');
   const notesField = document.getElementById('notes');
 
-  const loginUrl = 'https://cart-it-aflx.onrender.com/login';
+  const loginUrl = 'https://cart-it.app/login';
 
   const showLoginUI = (message) => {
     loader.style.display = 'none';
@@ -342,11 +342,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (isWishlist) {
       msg.textContent = `This item has been saved to your ${cleanName} wishlist.`;
       link.textContent = "See your list.";
-      link.dataset.url = `https://cart-it-aflx.onrender.com/wishlist/${listId}`;
+      link.dataset.url = `https://cart-it.app/wishlist/${listId}`;
     } else {
       msg.textContent = "This item has been saved to your cart.";
       link.textContent = "See your cart.";
-      link.dataset.url = "https://cart-it-aflx.onrender.com/cart";
+      link.dataset.url = "https://cart-it.app/cart";
     }
 
     link.style.fontStyle = "italic";

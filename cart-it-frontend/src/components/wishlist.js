@@ -20,7 +20,9 @@ import {
   updateItemNotes,
   deleteItem,
   deleteItemComment,
-  markItemAsPurchased
+  markItemAsPurchased,
+  bulkDeleteItems,
+  deleteWishlist
 } from '../services/api';
 import '../styles/detail-view.css';
 
@@ -190,11 +192,7 @@ const Wishlist = () => {
       if (actionType === 'remove') {
         await removeItemsFromWishlist(selectedIds);
       } else if (actionType === 'purge') {
-        await fetch(`${API_BASE}/items/bulk`, {
-          method: 'DELETE',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ ids: selectedIds })
-        });
+        await bulkDeleteItems(selectedId);
       }
 
       setItems(items.filter(item => !selectedIds.includes(item.item_id)));
@@ -217,7 +215,7 @@ const Wishlist = () => {
     }
 
     try {
-      const res = await fetch(`${API_BASE}/wishlists/${id}`, { method: 'DELETE' });
+      await deleteWishlist(id, user.user_id);
       if (res.ok) {
         navigate('/dashboard');
       }

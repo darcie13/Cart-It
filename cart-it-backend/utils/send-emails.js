@@ -14,7 +14,7 @@ const sendEmail = async ({ to, subject, html }) => {
         const response = await axios.post('https://api.smtp2go.com/v3/email/send', {
             api_key: process.env.SMTP2GO_API_KEY,
             to: [to],
-            sender: process.env.EMAIL_SENDER || "Cart-It <noreply@cart-it.com>",
+            sender: process.env.EMAIL_SENDER || "Cart-It <noreply@cart-it.app>",
             subject,
             html_body: html
         });

@@ -16,10 +16,24 @@ const cors = require("cors");
 const app = express();
 
 app.use(express.json());
-app.use(cors());
+const allowedOrigins = [
+  'http://localhost:3000',
+  'http://localhost:3001',
+  'https://cart-it.app'
+];
 
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true
+}));
+
+// Health check endpoint
 app.get('/', (req, res) => {
   res.send('Cart-It backend is running');
+});
+
+app.get('/health', (req, res) => {
+  res.json({ status: 'ok' });
 });
 
 // Route Imports
@@ -38,14 +52,12 @@ require("./jobs/price-tracker-job");
 app.use("/api/auth", authRoutes);
 
 app.use("/api/items", (req, res, next) => {
-  // If the URL contains "public", skip the token check
-  if (req.path.includes('/public/')) return next();
+  if (req.originalUrl.includes('/public/')) return next();
   return authenticateToken(req, res, next);
 }, itemRoutes);
 
 app.use("/api/wishlists", (req, res, next) => {
-  // If URL contains "public", skip token check
-  if (req.path.includes('/public/')) return next();
+  if (req.originalUrl.includes('/public/')) return next();
   return authenticateToken(req, res, next);
 }, wishlistRoutes);
 
@@ -55,5 +67,5 @@ app.use("/api/notifications", notificationsRoutes);
 app.use("/api/scrape", authenticateToken, scrapeRoutes);
 app.use("/api/analytics", authenticateToken, analyticsRoutes);
 
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

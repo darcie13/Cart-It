@@ -12,6 +12,7 @@ import SpendingAnalytics from './components/analytics';
 import ItemDetailModal from './components/item-modal';
 import ResetPassword from './components/reset-password';
 import Archive from './components/archive';
+import ExtensionInstall from './components/extension-install';
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
         <Route path="/share-wishlist/:shareToken/:wishlistId" element={<PublicWishlist />} />
         <Route path="/reset-password/:token" element={<ResetPassword />} />
         <Route path="/archive" element={<Archive />} />
+        <Route path="/extension-install" element={<ExtensionInstall />} />
       </Routes>
     </Router>
   );
