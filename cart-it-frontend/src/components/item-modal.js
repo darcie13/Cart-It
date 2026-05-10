@@ -21,6 +21,7 @@ const ItemDetailModal = ({ item,
   const [view, setView] = useState('details'); // Toggle between 'details' and 'comments' view
   const [newNote, setNewNote] = useState(''); // State for the comment input field
   const [confirmPurchase, setConfirmPurchase] = useState(false); // UI state for the two-step purchase confirmation
+  const [isPurchasing, setIsPurchasing] = useState(false);
   const [priceHistory, setPriceHistory] = useState([]); // State for chart data
 
   // Side effect to fetch historical price data for the specific item whenever the item ID changes.
@@ -234,18 +235,37 @@ const ItemDetailModal = ({ item,
 
         {!purchaseDisabled && (
           <button
-            className={`action-btn purchase-btn ${confirmPurchase ? 'confirming' : ''}`}
-            onClick={() => {
-              if (!confirmPurchase) {
-                setConfirmPurchase(true);
-                setTimeout(() => setConfirmPurchase(false), 3000);
-              } else {
-                onMarkPurchased(item);
-              }
-            }}
-          >
-            {confirmPurchase ? <span>Confirm?</span> : <LuCheck size={20} />}
-          </button>
+  className={`action-btn purchase-btn ${confirmPurchase ? 'confirming' : ''} ${isPurchasing ? 'processing' : ''}`}
+  disabled={isPurchasing}
+  onClick={async () => {
+    if (!confirmPurchase) {
+      setConfirmPurchase(true);
+      setTimeout(() => setConfirmPurchase(false), 2500);
+      return;
+    }
+
+    try {
+      setIsPurchasing(true);
+
+      // instant visual feedback
+      await onMarkPurchased(item);
+
+      // CLOSE MODAL IMMEDIATELY (key UX fix)
+      onClose();
+
+    } finally {
+      setIsPurchasing(false);
+    }
+  }}
+>
+  {isPurchasing ? (
+    <span>Processing...</span>
+  ) : confirmPurchase ? (
+    <span>Confirm?</span>
+  ) : (
+    <LuCheck size={20} />
+  )}
+</button>
         )}
 
         {!isLocked && (

@@ -195,15 +195,6 @@ const Wishlist = () => {
     return () => clearInterval(timer);
   }, []);
 
-  // Auto hide-effect for toast
-  useEffect(() => {
-  if (!toast) return;
-
-  const t = setTimeout(() => setToast(null), 6000);
-
-  return () => clearTimeout(t);
-}, [toast]);
-
   // Function to handle selecting or deselecting all items in the wishlist for bulk actions when in edit mode
   const handleSelectAll = () => {
     if (selectedIds.length === items.length) {
@@ -528,20 +519,20 @@ const handleDeleteWishlist = async () => {
 
 {/* Toast for completed wishlist*/}
 {toast && (
-  <div className="fixed bottom-6 right-6 bg-white shadow-lg border rounded-xl p-4 z-50">
-    <p className="text-sm font-medium">{toast.message}</p>
+  <div className="fixed top-6 left-1/2 -translate-x-1/2 bg-white shadow-xl border rounded-2xl px-6 py-4 z-50 min-w-[320px] max-w-[420px]">
+    <p className="text-sm font-semibold text-gray-900">{toast.message}</p>
 
     {toast.action === "archive" && (
-      <div className="flex gap-2 mt-2">
+      <div className="flex gap-2 mt-3">
         <button
-          className="text-xs bg-gray-100 px-3 py-1 rounded"
+          className="text-xs bg-gray-100 px-3 py-1 rounded-md hover:bg-gray-200"
           onClick={() => setToast(null)}
         >
           Later
         </button>
 
         <button
-          className="text-xs bg-orange-500 text-white px-3 py-1 rounded"
+          className="text-xs bg-orange-600 text-white px-3 py-1 rounded-md hover:bg-orange-700 font-medium"
           onClick={() => handleArchive(toast.wishlistId)}
         >
           Archive it

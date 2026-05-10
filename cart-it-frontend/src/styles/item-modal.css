@@ -110,6 +110,11 @@
   }
   .purchase-btn { @apply text-green-600 hover:bg-green-50; }
   .purchase-btn.confirming { @apply bg-green-600 text-white w-24 rounded-lg text-xs font-bold uppercase; }
+  .action-btn.processing {
+  opacity: 0.6;
+  transform: scale(0.98);
+  transition: all 0.2s ease;
+}
 
   .delete-btn { @apply text-red-500 hover:bg-red-50; }
 }
