@@ -244,7 +244,6 @@ const handleDeleteWishlist = async () => {
     setTimeout(() => setIsConfirming(null), 4000);
     return;
   }
-};
 
   try {
     const user = JSON.parse(localStorage.getItem('user'));
@@ -255,6 +254,7 @@ const handleDeleteWishlist = async () => {
   } catch (err) {
     console.error("Failed to delete wishlist:", err);
   }
+};
 
 
   // Function to handle adding a collaborator to the wishlist by email
