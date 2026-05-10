@@ -61,13 +61,13 @@ const Signup = () => {
           <div className="auth-card">
             <h2 className="auth-title">Create your account</h2>
               {/* Display status messages */}
-            {statusMessage && <div className="status-status">{statusMessage}</div>}
+            {statusMessage && <div className="status-message">{statusMessage}</div>}
             <p className="auth-subtitle">
               Already have an account? <Link to="/login" className="link-styled">Log in here.</Link>
             </p>
 
             {/* Registration form */}
-            <form onSubmit={handleSignup} className="auth-form-group-tight">
+            <form onSubmit={handleSignup} className="auth-form-group">
               <div>
                 <label className="auth-label">Username</label>
                 <input 
