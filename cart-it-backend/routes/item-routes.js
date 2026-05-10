@@ -278,13 +278,7 @@ router.patch("/:id/purchase", (req, res) => {
             }
 
             // CART ITEM ONLY
-            if (!item.wishlist_id) {
-                return res.status(200).json({
-                    success: true,
-                    type: "cart_purchase",
-                    itemId: id
-                });
-            }
+            return handleCompletionCheck();
 
             // Get purchaser username
             db.query(
