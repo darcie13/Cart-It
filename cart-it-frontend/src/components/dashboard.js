@@ -24,8 +24,7 @@ const Dashboard = () => {
   const [notifications, setNotifications] = useState([]); // Notifications 
   const getIcon = (type) => {
   if (type === "price_drop") return "💸";
-  if (type === "purchase") return "🛒";
-  if (type === "collaboration_activity") return "📦";
+  if (type === "collaboration_activity") return "🛒";
   return "🔔";
 };
 
