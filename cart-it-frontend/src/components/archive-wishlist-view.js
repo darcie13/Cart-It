@@ -14,31 +14,37 @@ const ArchivedWishlistView = () => {
   const [items, setItems] = useState([]);
   const [selectedItem, setSelectedItem] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [wishlists, setWishlists] = useState([]);
 
   useEffect(() => {
-    const user = JSON.parse(localStorage.getItem("user"));
-    if (!user) return navigate("/login");
+  const user = JSON.parse(localStorage.getItem("user"));
+  if (!user) return navigate("/login");
 
-    const load = async () => {
-      try {
-        const [details, itemsList] = await Promise.all([
-          getWishlistDetails(id, user.user_id),
-          getWishlistItems(id),
-        ]);
+  const load = async () => {
+    try {
+      const [details, itemsList, activeWishlists] = await Promise.all([
+        getWishlistDetails(id, user.user_id),
+        getWishlistItems(id),
+        getWishlists(user.user_id) 
+      ]);
 
-        setWishlistInfo(details);
-        setItems(itemsList);
-      } catch (err) {
-        console.error("Failed loading archived wishlist view:", err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+      setWishlistInfo(details);
+      setItems(itemsList);
+      setWishlists(activeWishlists || []); 
 
-    load();
-  }, [id, navigate]);
+    } catch (err) {
+      console.error("Failed loading archived wishlist view:", err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-  if (isLoading) return <div className="p-10">Loading...</div>;
+  load();
+}, [id, navigate]);
+
+  if (isLoading || showLoading) {
+  return <div className="p-10 opacity-80 transition-opacity duration-300">Loading...</div>;
+}
   if (!wishlistInfo) return null;
 
   const total = items.reduce((sum, i) => sum + parseFloat(i.price || 0), 0);
@@ -46,7 +52,7 @@ const ArchivedWishlistView = () => {
   return (
     <div className="page-wrapper">
       <div className="sidebar-container-wrapper">
-        <Sidebar wishlists={[]} showExtension={false} />
+        <Sidebar wishlists={sidebarWishlists} showExtension={false} />
       </div>
 
       <main className="detail-main">

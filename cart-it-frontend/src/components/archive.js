@@ -25,6 +25,8 @@ const Archive = () => {
   const [confirmDeleteId, setConfirmDeleteId] = useState(null);
   const [confirmEmpty, setConfirmEmpty] = useState(false);
   const [wishlists, setWishlists] = useState([]);
+  const [showLoading, setShowLoading] = useState(true);
+
 
   // Auth + load archived wishlists
   useEffect(() => {
@@ -126,8 +128,8 @@ const Archive = () => {
         </header>
 
         {/* Loading */}
-        {isLoading && (
-          <div className="archive-state">Loading archive...</div>
+        {isLoading && archivedLists.length === 0 && (
+        <div className="archive-state">Loading archive...</div>
         )}
 
         {/* Empty state */}
