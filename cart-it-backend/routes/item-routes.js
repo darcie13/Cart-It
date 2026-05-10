@@ -354,7 +354,7 @@ router.patch("/:id/purchase", (req, res) => {
         [
             u.user_id,
             message,
-            "collab",
+            "collaboration_activity",
             item.wishlist_id
         ]
     );
