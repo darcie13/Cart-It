@@ -14,7 +14,6 @@ const ArchivedWishlistView = () => {
   const [items, setItems] = useState([]);
   const [selectedItem, setSelectedItem] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [sidebarWishlists, setSidebarWishlists] = useState([]);
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user"));
@@ -37,7 +36,7 @@ const ArchivedWishlistView = () => {
     };
 
     load();
-  }, [id]);
+  }, [id, navigate]);
 
   if (isLoading) return <div className="p-10">Loading...</div>;
   if (!wishlistInfo) return null;
@@ -47,7 +46,7 @@ const ArchivedWishlistView = () => {
   return (
     <div className="page-wrapper">
       <div className="sidebar-container-wrapper">
-        <Sidebar wishlists={sidebarWishlists} showExtension={false} />
+        <Sidebar wishlists={[]} showExtension={false} />
       </div>
 
       <main className="detail-main">
