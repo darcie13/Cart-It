@@ -235,27 +235,29 @@ const ItemDetailModal = ({ item,
 
         {!purchaseDisabled && (
 <button
-  className={`action-btn purchase-btn ${confirmPurchase ? 'confirming' : ''} ${isPurchasing ? 'processing' : ''}`}
-  disabled={isPurchasing}
+  className={`action-btn purchase-btn ${purchaseState === 'confirm' ? 'confirming' : ''} ${purchaseState === 'processing' ? 'processing' : ''}`}
+  disabled={purchaseState === 'processing'}
   onClick={async () => {
-    if (!confirmPurchase) {
-      setConfirmPurchase(true);
-      setTimeout(() => setConfirmPurchase(false), 2500);
+    if (purchaseState !== 'confirm') {
+      setPurchaseState('confirm');
+      setTimeout(() => setPurchaseState('idle'), 2500);
       return;
     }
 
     try {
-      setIsPurchasing(true);
+      setPurchaseState('processing');
+
       await onMarkPurchased(item);
+
       onClose();
     } finally {
-      setIsPurchasing(false);
+      setPurchaseState('idle');
     }
   }}
 >
-  {isPurchasing ? (
+  {purchaseState === 'processing' ? (
     <span>Processing...</span>
-  ) : confirmPurchase ? (
+  ) : purchaseState === 'confirm' ? (
     <span>Confirm?</span>
   ) : (
     <LuCheck size={20} />
