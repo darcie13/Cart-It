@@ -21,7 +21,6 @@ const ItemDetailModal = ({ item,
   const [view, setView] = useState('details'); // Toggle between 'details' and 'comments' view
   const [newNote, setNewNote] = useState(''); // State for the comment input field
   const [purchaseState, setPurchaseState] = useState('idle'); // states: idle → confirm → processing
-  const [isPurchasing, setIsPurchasing] = useState(false);
   const [priceHistory, setPriceHistory] = useState([]); // State for chart data
 
   // Side effect to fetch historical price data for the specific item whenever the item ID changes.
