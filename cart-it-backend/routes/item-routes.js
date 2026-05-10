@@ -14,6 +14,15 @@ const db = require("../config/db");
 
 const sendEmail = require("../utils/send-emails");
 
+const requireUserId = (req, res) => {
+    const userId = req.user?.userId;
+    if (!userId) {
+        res.status(401).json({ error: "Unauthorized" });
+        return null;
+    }
+    return userId;
+};
+
 const normalizeNotes = (notesText) => {
     if (!notesText) return [];
     if (Array.isArray(notesText)) return notesText;
@@ -49,7 +58,8 @@ const buildNotePayload = (noteText, username) => ({
 // GET ITEMS FOR A SPECIFIC WISHLIST
 router.get("/wishlist/:wishlist_id", (req, res) => {
     const { wishlist_id } = req.params;
-    const currentUserId = req.user?.userId;
+    const currentUserId = requireUserId(req, res);
+    if (!currentUserId) return;
 
     const authSql = "SELECT role FROM wishlist_members WHERE wishlist_id = ? AND user_id = ?";
     db.query(authSql, [wishlist_id, currentUserId], (authErr, authResults) => {
@@ -127,7 +137,8 @@ router.post("/", (req, res) => {
 router.patch("/:id/notes", (req, res) => {
     const { id } = req.params;
     const { notes } = req.body;
-    const currentUserId = req.user?.userId;
+    const currentUserId = requireUserId(req, res);
+    if (!currentUserId) return;
 
     if (!notes || !notes.trim()) {
         return res.status(400).json({ error: "Note text cannot be empty" });
@@ -222,230 +233,199 @@ const checkWishlistCompletion = (wishlistId, callback) => {
     });
 };
 
-// MARK ITEM AS PURCHASED (stores purchase price and timestamp)
-router.patch("/:id/purchase", (req, res) => {
-    const { id } = req.params;
-    const { price } = req.body;
-    const currentUserId = req.user.userId;
+// PURCHASE FLOW HELPERS
+const getItemById = (id) => {
+    return new Promise((resolve, reject) => {
+        const sql = `
+            SELECT i.*, w.name AS wishlist_name
+            FROM items i
+            LEFT JOIN wishlists w ON i.wishlist_id = w.wishlist_id
+            WHERE i.item_id = ?
+            LIMIT 1
+        `;
+        db.query(sql, [id], (err, results) => {
+            if (err) return reject(err);
+            resolve(results[0]);
+        });
+    });
+};
 
-    const itemSql = `
-        SELECT i.*, w.name AS wishlist_name
-        FROM items i
-        LEFT JOIN wishlists w 
-            ON i.wishlist_id = w.wishlist_id
-        WHERE i.item_id = ?
-        LIMIT 1
-    `;
-
-    db.query(itemSql, [id], (err, results) => {
-        if (err) return res.status(500).send(err);
-
-        if (!results.length) {
-            return res.status(404).send("Item not found");
-        }
-
-        const item = results[0];
-
-        // Prevent double purchase
-        if (item.is_purchased) {
-            return res.status(400).json({
-                error: "Item already purchased"
-            });
-        }
-
-        // Mark item purchased
-        const updateSql = `
+const markItemAsPurchased = (id, price, userId) => {
+    return new Promise((resolve, reject) => {
+        const sql = `
             UPDATE items
-            SET
-                is_purchased = 1,
+            SET is_purchased = 1,
                 purchased_at = NOW(),
                 purchased_price = ?,
                 purchased_by = ?
             WHERE item_id = ?
             AND is_purchased = 0
         `;
+        db.query(sql, [price, userId, id], (err, result) => {
+            if (err) return reject(err);
+            resolve(result);
+        });
+    });
+};
 
-           db.query(updateSql, [price, currentUserId, id], (updateErr, updateResult) => {
+const getUsername = (userId) => {
+    return new Promise((resolve, reject) => {
+        db.query(
+            "SELECT username FROM users WHERE user_id = ?",
+            [userId],
+            (err, results) => {
+                if (err) return reject(err);
+                resolve(results[0]?.username || "Unknown");
+            }
+        );
+    });
+};
 
-            if (updateErr) {
-                return res.status(500).send(updateErr);
+const isCollaborativeWishlist = (wishlistId) => {
+    return new Promise((resolve, reject) => {
+        const sql = `
+            SELECT COUNT(*) AS memberCount
+            FROM wishlist_members
+            WHERE wishlist_id = ?
+        `;
+        db.query(sql, [wishlistId], (err, results) => {
+            if (err) return reject(err);
+            resolve(results[0].memberCount > 1);
+        });
+    });
+};
+
+const notifyCollaborators = async (item, purchaserUsername, currentUserId) => {
+    return new Promise((resolve, reject) => {
+        const sql = `
+            SELECT DISTINCT u.user_id, u.email
+            FROM wishlist_members wm
+            JOIN users u ON wm.user_id = u.user_id
+            WHERE wm.wishlist_id = ?
+            AND wm.user_id != ?
+        `;
+
+        db.query(sql, [item.wishlist_id, currentUserId], async (err, users) => {
+            if (err) return reject(err);
+
+            const message = `${purchaserUsername} purchased "${item.product_name}" from "${item.wishlist_name}".`;
+
+            for (const u of users) {
+                db.query(
+                    `INSERT INTO notifications (user_id, message, type, reference_id)
+                     VALUES (?, ?, ?, ?)`,
+                    [u.user_id, message, "collaboration_activity", item.wishlist_id]
+                );
+
+                try {
+                    await sendEmail({
+                        to: u.email,
+                        subject: "Shared Wishlist Purchase",
+                        text: message,
+                        html: `<p>${message}</p>`
+                    });
+                } catch (e) {
+                    console.error("Email error:", e);
+                }
             }
 
-            if (updateResult.affectedRows === 0) {
-                return res.status(400).json({
-                    error: "Item already purchased"
-                });
-            }
+            resolve();
+        });
+    });
+};
 
-            // CART ITEM ONLY
-            return handleCompletionCheck();
+const checkAndFinalizeCompletion = (wishlistId) => {
+    return new Promise((resolve, reject) => {
+        const sql = `
+            SELECT COUNT(*) AS remaining
+            FROM items
+            WHERE wishlist_id = ?
+            AND is_purchased = 0
+        `;
 
-            // Get purchaser username
+        db.query(sql, [wishlistId], (err, results) => {
+            if (err) return reject(err);
+
+            const completed = results[0].remaining === 0;
+
+            if (!completed) return resolve(false);
+
             db.query(
-                "SELECT username FROM users WHERE user_id = ?",
-                [currentUserId],
-                (userErr, userResults) => {
-                    if (userErr) return res.status(500).send(userErr);
-
-                    const purchaserUsername =
-                        userResults[0]?.username || "Unknown";
-
-                    // Check if collaborative
-                    const collabSql = `
-                        SELECT COUNT(*) AS memberCount
-                        FROM wishlist_members
-                        WHERE wishlist_id = ?
-                    `;
-
-                    db.query(
-                        collabSql,
-                        [item.wishlist_id],
-                        (collabErr, collabResults) => {
-                            if (collabErr)
-                                return res.status(500).send(collabErr);
-
-                            const isCollaborative =
-                                collabResults[0].memberCount > 1;
-
-                            // PRIVATE WISHLIST
-                            if (!isCollaborative) {
-                                return handleCompletionCheck();
-                            }
-
-                            // SHARED WISHLIST
-                            const message = `${purchaserUsername} purchased "${item.product_name}" from "${item.wishlist_name}".`;
-                            const notifySql = `
-                                SELECT DISTINCT u.user_id, u.email
-                                FROM wishlist_members wm
-                                JOIN users u
-                                    ON wm.user_id = u.user_id
-                                WHERE wm.wishlist_id = ?
-                                AND wm.user_id != ?
-                            `;
-
-                            db.query(
-                                notifySql,
-                                [item.wishlist_id, currentUserId],
-                                async (notifyErr, users) => {
-                                    if (notifyErr)
-                                        return res.status(500).send(notifyErr);
-
-                                    // INSERT NOTIFICATIONS
-                                    for (const u of users) {
-
-    // Insert notification
-    db.query(
-        `
-        INSERT INTO notifications
-        (
-            user_id,
-            message,
-            type,
-            reference_id
-        )
-        VALUES (?, ?, ?, ?)
-        `,
-        [
-            u.user_id,
-            message,
-            "collaboration_activity",
-            item.wishlist_id
-        ]
-    );
-
-    // Send email
-    try {
-        await sendEmail({
-    to: u.email,
-    subject: "Shared Wishlist Purchase",
-    text: message,
-    html: `
-        <div style="background-color:#f9fafb;padding:40px 0;font-family:sans-serif;">
-            <div style="max-width:500px;margin:0 auto;background:#ffffff;border-radius:16px;padding:40px;">
-                
-                <h1 style="font-size:24px;color:#111827;margin-bottom:20px;">
-                    🛒 Wishlist Activity
-                </h1>
-
-                <p style="font-size:16px;color:#4b5563;line-height:24px;">
-                    <strong>${purchaserUsername}</strong> purchased
-                    <strong>${item.product_name}</strong>
-                    from the wishlist
-                    <strong>${item.wishlist_name}</strong>.
-                </p>
-
-                <div style="
-                    margin-top:24px;
-                    padding:16px;
-                    background:#fff7ed;
-                    border-radius:12px;
-                    color:#9a3412;
-                    font-weight:600;
-                ">
-                    Collaborative wishlist updated
-                </div>
-
-                <p style="font-size:12px;color:#9ca3af;margin-top:30px;">
-                    You're receiving this because you're a collaborator on this wishlist.
-                </p>
-
-            </div>
-        </div>
-    `
-});
-    } catch (emailErr) {
-        console.error("Email error:", emailErr);
-    }
-}
-
-                                    handleCompletionCheck();
-                                }
-                            );
-                        }
-                    );
-
-                    function handleCompletionCheck() {
-                        checkWishlistCompletion(
-                            item.wishlist_id,
-                            (completionErr, completed) => {
-                                if (completionErr) {
-                                    return res
-                                        .status(500)
-                                        .send(completionErr);
-                                }
-
-                                // Return updated item immediately
-                                const updatedItemSql = `
-                                    SELECT i.*, u.username AS purchased_by_username
-                                    FROM items i
-                                    LEFT JOIN users u
-                                        ON i.purchased_by = u.user_id
-                                    WHERE i.item_id = ?
-                                `;
-
-                                db.query(
-                                    updatedItemSql,
-                                    [id],
-                                    (finalErr, finalResults) => {
-                                        if (finalErr)
-                                            return res
-                                                .status(500)
-                                                .send(finalErr);
-
-                                        res.status(200).json({
-                                            success: true,
-                                            completed,
-                                            item: finalResults[0]
-                                        });
-                                    }
-                                );
-                            }
-                        );
-                    }
+                `UPDATE wishlists
+                 SET is_completed = 1,
+                     completed_at = NOW()
+                 WHERE wishlist_id = ?`,
+                [wishlistId],
+                (err2) => {
+                    if (err2) return reject(err2);
+                    resolve(true);
                 }
             );
         });
     });
+};
+
+// FIXED PURCHASE ROUTE 
+router.patch("/:id/purchase", async (req, res) => {
+    const { id } = req.params;
+    const { price } = req.body;
+    const currentUserId = requireUserId(req, res);
+    if (!currentUserId) return;
+
+    try {
+        const item = await getItemById(id);
+
+        if (!item) {
+            return res.status(404).json({ error: "Item not found" });
+        }
+
+        if (item.is_purchased) {
+            return res.status(400).json({ error: "Item already purchased" });
+        }
+
+        const updateResult = await markItemAsPurchased(id, price, currentUserId);
+
+        if (updateResult.affectedRows === 0) {
+            return res.status(400).json({ error: "Item already purchased" });
+        }
+
+        const purchaserUsername = await getUsername(currentUserId);
+
+        const collaborative = await isCollaborativeWishlist(item.wishlist_id);
+
+        let completed = false;
+
+        if (!collaborative) {
+            completed = await checkAndFinalizeCompletion(item.wishlist_id);
+        } else {
+            await notifyCollaborators(item, purchaserUsername, currentUserId);
+            completed = await checkAndFinalizeCompletion(item.wishlist_id);
+        }
+
+        const updatedItem = await new Promise((resolve, reject) => {
+            db.query(
+                `SELECT i.*, u.username AS purchased_by_username
+                 FROM items i
+                 LEFT JOIN users u ON i.purchased_by = u.user_id
+                 WHERE i.item_id = ?`,
+                [id],
+                (err, results) => {
+                    if (err) return reject(err);
+                    resolve(results[0]);
+                }
+            );
+        });
+
+        return res.status(200).json({
+            success: true,
+            completed,
+            item: updatedItem
+        });
+
+    } catch (err) {
+        console.error("Purchase error:", err);
+        return res.status(500).json({ error: "Internal server error" });
+    }
 });
 
 // GET PRICE HISTORY FOR ITEM (used for analytics charts)
