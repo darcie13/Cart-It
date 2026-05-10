@@ -2,14 +2,15 @@
  * Dashboard Component
  * The primary landing page for authenticated users.
  * Features a quad-image wishlist preview and a branded "New List" trigger.
- * Also features at-a-glance look at recent cart items and sparkline graph for spending analytics.
+ * Also features at-a-glance look at recent cart items and sparkline graph for spending analytics
+ * Also features notifications for users on price drops and collab activity.
  */
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Sidebar from './sidebar';
 import { LuPlus, LuUsers, LuTrendingUp, LuShoppingCart, LuDollarSign, LuCircleHelp } from "react-icons/lu";
-import { getWishlists, getCartItems, createWishlist, getNotifications, getAuthHeader } from '../services/api';
+import { getWishlists, getCartItems, createWishlist, getNotifications } from '../services/api';
 import '../styles/dashboard.css';
 
 

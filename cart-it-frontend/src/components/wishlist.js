@@ -226,30 +226,33 @@ const Wishlist = () => {
     }
   };
 
-  // Function to handle deleting the entire wishlist, with a confirmation step to prevent accidental deletion
-  const handleDeleteWishlist = async () => {
+// Handles archiving of wishlist
+const handleArchive = async (wishlistId) => {
+  try {
+    await archiveWishlist(wishlistId); 
+    setToast(null);
+    navigate("/archive");
+  } catch (err) {
+    console.error("Archive failed", err);
+  }
+};
+
+// Function to handle deleting the entire wishlist
+const handleDeleteWishlist = async () => {
   if (isConfirming !== 'delete-list') {
     setIsConfirming('delete-list');
     setTimeout(() => setIsConfirming(null), 4000);
     return;
   }
 
-  // Handles archiving of wishlist
-  const archiveWishlist = async (wishlistId) => {
   try {
-    await fetch(`https://cart-it-aflx.onrender.com/api/wishlists/${wishlistId}/archive`, {
-      method: "PATCH",
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    });
+    const user = JSON.parse(localStorage.getItem('user'));
 
-    setToast(null);
+    await deleteWishlist(id, user.user_id);
 
-    navigate("/archive");
-
+    navigate('/dashboard');
   } catch (err) {
-    console.error("Archive failed", err);
+    console.error("Failed to delete wishlist:", err);
   }
 };
 
@@ -262,7 +265,7 @@ const Wishlist = () => {
   } catch (err) {
     console.error("Failed to delete wishlist:", err);
   }
-};
+
 
   // Function to handle adding a collaborator to the wishlist by email
   const handleCollab = async () => {
