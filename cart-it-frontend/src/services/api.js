@@ -365,8 +365,8 @@ export const scrapeAndSave = async (data) => {
 };
 
 // --- NOTIFICATIONS --- 
-export const getNotifications = async (userId, filter = 'all') => {
-  const response = await fetch(`${API_BASE}/notifications/${userId}?filter=${filter}`, {
+export const getNotifications = async (userId) => {
+  const response = await fetch(`${API_BASE}/notifications/${userId}`, {
     headers: { ...getAuthHeader() }
   });
 

@@ -93,9 +93,14 @@ const runPriceCheck = async () => {
 
                     /* Insert notification into database*/
                     const [insertResult] = await db.promise().execute(`
-                        INSERT INTO notifications (user_id, message, email_sent)
-                        VALUES (?, ?, 0)
-                    `, [item.user_id, message]);
+                        INSERT INTO notifications (
+                        user_id,
+                        message,
+                        email_sent,
+                        type
+                        )
+                        VALUES (?, ?, 0, ?)
+                    `, [item.user_id, message, "price_drop"]);
 
                     const notificationId = insertResult.insertId;
 

@@ -319,8 +319,7 @@ router.patch("/:id/purchase", (req, res) => {
                             }
 
                             // SHARED WISHLIST
-                            const message = `🛒 ${purchaserUsername} purchased "${item.product_name}" from "${item.wishlist_name}".`;
-
+                            const message = `${purchaserUsername} purchased "${item.product_name}" from "${item.wishlist_name}".`;
                             const notifySql = `
                                 SELECT u.user_id, u.email
                                 FROM wishlist_members wm
@@ -355,7 +354,7 @@ router.patch("/:id/purchase", (req, res) => {
         [
             u.user_id,
             message,
-            "collaboration_activity",
+            "collab",
             item.wishlist_id
         ]
     );
@@ -365,12 +364,45 @@ router.patch("/:id/purchase", (req, res) => {
         await sendEmail({
             to: u.email,
             subject: "Shared Wishlist Purchase",
-            html: `
-                <div style="font-family:sans-serif;padding:30px;">
-                    <h2>🛒 Wishlist Update</h2>
-                    <p>${message}</p>
-                </div>
-            `
+            html: `html
+<div style="background:#f6f7fb;padding:40px 0;font-family:Arial,sans-serif;">
+  <div style="max-width:520px;margin:auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,0.08);">
+
+    <div style="background:#DB8046;padding:20px;text-align:center;color:#fff;">
+      <h2 style="margin:0;">Cart-It Wishlist Update</h2>
+    </div>
+
+    <div style="padding:30px;text-align:center;">
+      <p style="font-size:16px;color:#333;">
+        A collaborator activity occurred in:
+      </p>
+
+      <h3 style="color:#DB8046;margin:10px 0 20px;">
+        ${item.wishlist_name}
+      </h3>
+
+      <p style="color:#555;font-size:15px;line-height:1.6;">
+        <strong>${purchaserUsername}</strong> purchased:
+        <br />
+        ${item.product_name}
+      </p>
+
+      <a href="https://cart-it.app/dashboard"
+        style="display:inline-block;background:#DB8046;color:#fff;
+        padding:12px 24px;border-radius:10px;text-decoration:none;font-weight:bold;margin-top:20px;">
+        Open Cart-It
+      </a>
+
+      <p style="margin-top:20px;font-size:12px;color:#999;">
+        Shared shopping made easier ✨
+      </p>
+    </div>
+
+  </div>
+</div>
+`
+
+
         });
     } catch (emailErr) {
         console.error("Email error:", emailErr);

@@ -21,22 +21,13 @@ const Dashboard = () => {
   const [isModalOpen, setIsModalOpen] = useState(false); // Toggle for creation modal
   const [newWishlistName, setNewWishlistName] = useState(""); // Input for new list naming
   const [items, setItems] = useState([]); // Recent items for activity feed
-  const [notifications, setNotifications] = useState([]); // Notifications
-  const [notifFilter, setNotifFilter] = useState("all"); // Filters notification card for price drops or collaboration activity
-  const sortedNotifications = React.useMemo(() => {
-  // filter the list based on the dropdown
-  let filtered = [...notifications];
-  
-  if (notifFilter !== "all") {
-    filtered = filtered.filter(n => n.type === notifFilter); 
-  }
-
-  return filtered.sort((a, b) => {
-    const aDate = new Date(a.created_at).getTime();
-    const bDate = new Date(b.created_at).getTime();
-    return bDate - aDate;
-  });
-}, [notifications, notifFilter]); 
+  const [notifications, setNotifications] = useState([]); // Notifications 
+  const getIcon = (type) => {
+  if (type === "price_drop") return "💸";
+  if (type === "purchase") return "🛒";
+  if (type === "collaboration_activity") return "📦";
+  return "🔔";
+};
 
   const timeAgo = (date) => {
     const now = new Date();
@@ -79,12 +70,12 @@ const Dashboard = () => {
     if (!user?.user_id) return;
 
     const fetchNotifications = async () => {
-      const data = await getNotifications(user.user_id, notifFilter);
+      const data = await getNotifications(user.user_id);
       setNotifications(data || []);
     };
 
     fetchNotifications();
-  }, [user?.user_id, notifFilter]);
+  }, [user?.user_id]);
 
 
   // Submits a new wishlist request to the API and updates local state.
@@ -223,12 +214,6 @@ const Dashboard = () => {
             <LuDollarSign className="text-[#DB8046]" />
             <div className="flex items-center justify-between w-full">
               <h3 className="insight-label">Notifications</h3>
-
-              <select className="text-xs border rounded px-2 py-1" value={notifFilter} onChange={(e) => setNotifFilter(e.target.value)}>
-                <option value="all">All</option>
-                <option value="price_drop">Price Drops</option>
-                <option value="collaboration_activity">Collaboration</option>
-              </select>
             </div>
           </div>
         </div>
@@ -239,7 +224,7 @@ const Dashboard = () => {
               No notifications yet
             </div>
           ) : (
-          sortedNotifications.slice(0, 5).map(n => (
+          notifications.slice(0, 5).map(n => (
             <div
           key={n.notification_id}
           className={`
@@ -251,7 +236,7 @@ const Dashboard = () => {
         >
           <div className="flex justify-between gap-3">
             <span>
-              💸 {n.message}
+              {getIcon(n.type)} {n.message}
             </span>
             <span className="text-xs text-gray-400 whitespace-nowrap">
               {timeAgo(n.created_at)}

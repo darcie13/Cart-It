@@ -109,8 +109,26 @@ const Wishlist = () => {
         is_purchased: true,
         purchased_by_username: user.username
       };
-      setItems(prev => prev.map(i => i.item_id === item.item_id ? updatedItem : i));
-      setSelectedItem(updatedItem);
+      setItems(prev =>
+        prev.map(i =>
+          i.item_id === item.item_id
+          ? {
+          ...i,
+          is_purchased: true,
+          purchased_by_username: user.username
+          }
+      : i
+      )
+    );
+      setSelectedItem(prev =>
+        prev?.item_id === item.item_id
+       ? {
+        ...prev,
+        is_purchased: true,
+        purchased_by_username: user.username
+      }
+      : prev
+      );
     } catch (err) {
       console.error(err);
     }
