@@ -25,7 +25,6 @@ const Archive = () => {
   const [confirmDeleteId, setConfirmDeleteId] = useState(null);
   const [confirmEmpty, setConfirmEmpty] = useState(false);
   const [wishlists, setWishlists] = useState([]);
-  const [showLoading, setShowLoading] = useState(true);
 
 
   // Auth + load archived wishlists
