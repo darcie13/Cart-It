@@ -50,6 +50,14 @@ const ArchivedWishlistView = () => {
   load();
 }, [id, navigate]);
 
+if (!wishlistInfo && !isLoading) {
+  return (
+    <div className="p-10 text-gray-400">
+      Failed to load wishlist.
+    </div>
+  );
+}
+
   const total = items.reduce((sum, i) => sum + parseFloat(i.price || 0), 0);
 
   return (
@@ -58,7 +66,7 @@ const ArchivedWishlistView = () => {
         <Sidebar wishlists={wishlists} showExtension={false} />
       </div>
 
-      <main className="detail-main">
+      <main className="detail-main relative">
         {isLoading && (
         <div className="absolute inset-0 flex items-center justify-center bg-white/60 backdrop-blur-sm z-50">
             <div className="animate-pulse text-gray-400">
@@ -72,7 +80,9 @@ const ArchivedWishlistView = () => {
             <LuArrowLeft /> Back to Archive
           </button>
 
-          <h1 className="text-3xl font-bold">{wishlistInfo.name}</h1>
+          <h1 className="text-3xl font-bold">
+            {wishlistInfo?.name}
+        </h1>
 
           <p className="text-gray-500 text-sm mt-2">
             Archived view • {items.length} items • ${total.toFixed(2)} total
