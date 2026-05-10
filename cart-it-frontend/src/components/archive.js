@@ -140,13 +140,14 @@ const Archive = () => {
         {/* Grid */}
         <div className="archive-grid">
           {archivedLists.map(list => (
-            <div key={list.wishlist_id} className="archive-card">
+            <div key={list.wishlist_id} className="archive-card cursor-pointer hover:shadow-md transition"
+            onClick={() => navigate(`/archive/${list.wishlist_id}`)}>
 
               <div className="archive-info">
                 <h3>{list.name}</h3>
 
                 {/* consistent safe fallback */}
-                <p>{list.items ?? 0} items</p>
+                <p>{list.total_items ?? 0} items</p>
 
                 <span className="archived-date">
                   Archived on {formatDate(list.archived_at)}

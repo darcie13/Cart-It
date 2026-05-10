@@ -12,6 +12,7 @@
   .item-modal-drawer {
     @apply w-[400px] h-full bg-white shadow-2xl p-8 flex flex-col relative;
     animation: slideIn 0.3s ease-out;
+    transition: opacity 0.2s ease, transform 0.2s ease;
   }
 
   @keyframes slideIn {
@@ -109,11 +110,16 @@
     @apply bg-[#4B0082] text-white hover:bg-[#3a0066];
   }
   .purchase-btn { @apply text-green-600 hover:bg-green-50; }
-  .purchase-btn.confirming { @apply bg-green-600 text-white w-24 rounded-lg text-xs font-bold uppercase; }
-  .action-btn.processing {
-  opacity: 0.6;
-  transform: scale(0.98);
-  transition: all 0.2s ease;
+  .purchase-btn.confirming {
+  @apply bg-green-500 text-white;
+  transform: scale(1.05);
+}
+
+.purchase-btn.processing {
+  @apply bg-gray-300 text-gray-600 cursor-not-allowed;
+  width: 100%;
+  border-radius: 10px;
+  font-weight: 600;
 }
 
   .delete-btn { @apply text-red-500 hover:bg-red-50; }

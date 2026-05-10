@@ -13,6 +13,7 @@ import ItemDetailModal from './components/item-modal';
 import ResetPassword from './components/reset-password';
 import Archive from './components/archive';
 import ExtensionInstall from './components/extension-install';
+import ArchivedWishlistView from './components/archive-wishlist-view';
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
         <Route path="/reset-password/:token" element={<ResetPassword />} />
         <Route path="/archive" element={<Archive />} />
         <Route path="/extension-install" element={<ExtensionInstall />} />
+        <Route path="/archive/:id" element={<ArchivedWishlistView />} />
       </Routes>
     </Router>
   );

@@ -20,7 +20,7 @@ const ItemDetailModal = ({ item,
   isArchived = false }) => {
   const [view, setView] = useState('details'); // Toggle between 'details' and 'comments' view
   const [newNote, setNewNote] = useState(''); // State for the comment input field
-  const [confirmPurchase, setConfirmPurchase] = useState(false); // UI state for the two-step purchase confirmation
+  const [purchaseState, setPurchaseState] = useState('idle'); // states: idle → confirm → processing
   const [isPurchasing, setIsPurchasing] = useState(false);
   const [priceHistory, setPriceHistory] = useState([]); // State for chart data
 
@@ -234,33 +234,38 @@ const ItemDetailModal = ({ item,
           </button>
 
         {!purchaseDisabled && (
-          <button
-  className={`action-btn purchase-btn ${confirmPurchase ? 'confirming' : ''} ${isPurchasing ? 'processing' : ''}`}
-  disabled={isPurchasing}
+<button
+  className={`action-btn purchase-btn ${
+    purchaseState === 'confirm' ? 'confirming' : ''
+  } ${purchaseState === 'processing' ? 'processing' : ''}`}
+  disabled={purchaseState === 'processing'}
   onClick={async () => {
-    if (!confirmPurchase) {
-      setConfirmPurchase(true);
-      setTimeout(() => setConfirmPurchase(false), 2500);
+    // STEP 1: first click → confirm state
+    if (purchaseState === 'idle') {
+      setPurchaseState('confirm');
+      setTimeout(() => setPurchaseState('idle'), 2500);
       return;
     }
 
+    // STEP 2: confirm click → processing
     try {
-      setIsPurchasing(true);
+      setPurchaseState('processing');
 
-      // instant visual feedback
       await onMarkPurchased(item);
 
-      // CLOSE MODAL IMMEDIATELY (key UX fix)
-      onClose();
+      setTimeout(() => {
+        onClose();
+      }, 600);
 
-    } finally {
-      setIsPurchasing(false);
+    } catch (err) {
+      console.error(err);
+      setPurchaseState('idle');
     }
   }}
 >
-  {isPurchasing ? (
+  {purchaseState === 'processing' ? (
     <span>Processing...</span>
-  ) : confirmPurchase ? (
+  ) : purchaseState === 'confirm' ? (
     <span>Confirm?</span>
   ) : (
     <LuCheck size={20} />

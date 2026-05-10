@@ -519,26 +519,33 @@ const handleDeleteWishlist = async () => {
 
 {/* Toast for completed wishlist*/}
 {toast && (
-  <div className="fixed top-6 left-1/2 -translate-x-1/2 bg-white shadow-xl border rounded-2xl px-6 py-4 z-50 min-w-[320px] max-w-[420px]">
-    <p className="text-sm font-semibold text-gray-900">{toast.message}</p>
+  <div className="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-full flex justify-center">
+    <div className="bg-white shadow-2xl border border-gray-200 rounded-2xl px-6 py-5 min-w-[360px] max-w-[460px] animate-fade-in">
+      
+      <p className="text-sm font-semibold text-gray-900 text-center">
+        {toast.message}
+      </p>
 
-    {toast.action === "archive" && (
-      <div className="flex gap-2 mt-3">
-        <button
-          className="text-xs bg-gray-100 px-3 py-1 rounded-md hover:bg-gray-200"
-          onClick={() => setToast(null)}
-        >
-          Later
-        </button>
+      {toast.action === "archive" && (
+        <div className="flex gap-3 mt-4 justify-center">
+          
+          <button
+            className="text-xs bg-gray-100 px-4 py-2 rounded-lg hover:bg-gray-200 transition"
+            onClick={() => setToast(null)}
+          >
+            Later
+          </button>
 
-        <button
-          className="text-xs bg-orange-600 text-white px-3 py-1 rounded-md hover:bg-orange-700 font-medium"
-          onClick={() => handleArchive(toast.wishlistId)}
-        >
-          Archive it
-        </button>
-      </div>
-    )}
+          <button
+            className="text-xs bg-orange-600 text-white px-4 py-2 rounded-lg hover:bg-orange-700 font-medium transition"
+            onClick={() => handleArchive(toast.wishlistId)}
+          >
+            Archive it
+          </button>
+
+        </div>
+      )}
+    </div>
   </div>
 )}
       {/* Modal to display the details of a selected item when the user clicks on an item card */ }

@@ -54,6 +54,7 @@ Cart-It/
 | |   |__ assets/
 | |   |__ components/
 | |   |   |__ analytics.js
+| |   |   |__ archive-wishlist-view.js
 | |   |   |__ archive.js
 | |   |   |__ cart.js
 | |   |   |__ dashboard.js

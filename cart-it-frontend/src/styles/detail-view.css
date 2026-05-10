@@ -103,4 +103,12 @@
     text-[10px] px-2.5 py-1 rounded-md shadow-sm font-extrabold border border-purple-200 
     uppercase tracking-wider;
   }
+
+  /*Archive Wishlist Page */
+  .archive-card {
+  transition: all 0.2s ease;
+}
+.archive-card:hover {
+  transform: translateY(-2px);
+}
 }
