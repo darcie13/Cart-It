@@ -48,6 +48,7 @@ exports.previewScrape = async (req, res) => {
  * 2. Fallback to backend scraping
  */
 exports.scrapeAndSave = async (req, res) => {
+    console.log("SCRAPE REQUEST BODY:", req.body);
     const { url, user_id, wishlist_id, notes, productData } = req.body;
 
     try {

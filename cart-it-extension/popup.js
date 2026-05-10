@@ -295,6 +295,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             Authorization: `Bearer ${token}`
           },
           body: JSON.stringify({
+            url: tab.url,           
             product_url: tab.url,
             user_id: userId,
             wishlist_id: listSelect.value || null,
