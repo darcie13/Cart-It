@@ -50,9 +50,6 @@ const ArchivedWishlistView = () => {
   load();
 }, [id, navigate]);
 
-
-  if (!wishlistInfo) return null;
-
   const total = items.reduce((sum, i) => sum + parseFloat(i.price || 0), 0);
 
   return (
@@ -63,10 +60,12 @@ const ArchivedWishlistView = () => {
 
       <main className="detail-main">
         {isLoading && (
-    <div className="animate-pulse text-gray-400">
-  Loading wishlist...
-</div>
-  )}
+        <div className="absolute inset-0 flex items-center justify-center bg-white/60 backdrop-blur-sm z-50">
+            <div className="animate-pulse text-gray-400">
+                Loading wishlist...
+            </div>
+        </div>
+        )}
         {/* Header */}
         <header className="mb-8">
           <button onClick={() => navigate("/archive")} className="back-link">
