@@ -11,16 +11,15 @@ import { LuLayoutDashboard, LuShoppingCart, LuChartArea, LuLogOut, LuDownload, L
 import '../styles/sidebar.css';
 
 const Sidebar = ({ wishlists, archivedCount = 0, showExtension = false }) => {
-   const navigate = useNavigate();
-    const handleExtensionClick = () => {
-      navigate("/extension-install");
-    };
   const navigate = useNavigate();
   const handleLogOut = () => {
     // Clear web dashboard data
     localStorage.removeItem('user');
     localStorage.removeItem('token');
     navigate('/');
+  };
+  const handleExtensionClick = () => {
+    navigate("/extension-install");
   };
 
   return (
