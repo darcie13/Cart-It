@@ -17,6 +17,11 @@ const validateUrl = (req, res, next) => {
     if (!req.body.url) {
         return res.status(400).json({ error: "URL is required" });
     }
+    try {
+        new URL(req.body.url);
+    } catch {
+        return res.status(400).json({ error: "Invalid URL format" });
+    }
     next();
 };
 

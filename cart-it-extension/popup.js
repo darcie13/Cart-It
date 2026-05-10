@@ -295,16 +295,14 @@ document.addEventListener('DOMContentLoaded', async () => {
             Authorization: `Bearer ${token}`
           },
           body: JSON.stringify({
-            url: tab.url,
+            product_url: tab.url,
             user_id: userId,
             wishlist_id: listSelect.value || null,
             notes: document.getElementById('notes').value,
-
-            productData: {
-              name: productData?.name,
-              price: productData?.price,
-              img: productData?.img
-            }
+            product_name: productData?.name,
+            price: normalizePrice(productData?.price), 
+            image_url: productData?.img,
+            store_name: getSite(tab.url)
           })
         }
       );

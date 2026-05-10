@@ -54,17 +54,28 @@ exports.scrapeAndSave = async (req, res) => {
         let data;
 
         /* Priority: Using extension provided data */
-        if (productData && productData.name) {
-            console.log("[Cart-It] Using extension-provided data");
+      if (productData && productData.name) {
+    console.log("[Cart-It] Using extension-provided data");
 
-            data = {
-                name: productData.name,
-                price: parseFloat(
-                    String(productData.price || "").replace(/[^\d.]/g, "")
-                ) || 0.00,
-                img: productData.img,
-                store: new URL(url).hostname
-            };
+    let store = null;
+
+    try {
+        if (url) {
+            store = new URL(url).hostname;
+        }
+    } catch (e) {
+        console.error("Invalid URL received:", url);
+        store = null;
+    }
+
+    data = {
+        name: productData.name,
+        price: parseFloat(
+            String(productData.price || "").replace(/[^\d.]/g, "")
+        ) || 0.00,
+        img: productData.img,
+        store: store
+    };
 
         } else {
             /* Fallback: scraping using backend providers */
