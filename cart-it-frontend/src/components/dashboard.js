@@ -100,16 +100,6 @@ const Dashboard = () => {
 
   try {
     const data = await getWishlists(user.user_id);
-
-    // detect newly completed lists
-    const newlyCompleted = data.find(
-      w => w.is_completed && !wishlists.find(old => old.wishlist_id === w.wishlist_id && old.is_completed)
-    );
-
-    if (newlyCompleted) {
-      handleWishlistCompletion(newlyCompleted.wishlist_id);
-    }
-
     setWishlists(data);
   } catch (err) {
     console.error("Wishlist refresh failed:", err);
@@ -136,7 +126,7 @@ useEffect(() => {
 // Helper to archive completed wishlists
 const archiveWishlist = async (id) => {
   try {
-    await fetch(`/api/wishlists/${id}/archive`, {
+    await fetch(`https://cart-it-aflx.onrender.com/api/wishlists/${id}/archive`, {
       method: "PATCH",
       headers: {
         'Content-Type': 'application/json',
@@ -168,7 +158,7 @@ const archiveWishlist = async (id) => {
             <p className="dash-subtitle">Your personal shopping lab is ready.</p>
           </div>
           {/* Help Icon */}
-          <a href={`mailto:support@cart-it.com?subject=Cart-It Support Request&body=Hi Cart-It Support,%0D%0A%0D%0AI need help with:%0D%0A`} className="help-icon" title="Help">
+          <a href={`mailto:support@cart-it.app?subject=Cart-It Support Request&body=Hi Cart-It Support,%0D%0A%0D%0AI need help with:%0D%0A`} className="help-icon" title="Help">
             <LuCircleHelp size={22} />
           </a>
         </header>

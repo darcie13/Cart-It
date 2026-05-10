@@ -234,6 +234,7 @@ router.patch("/:id/purchase", (req, res) => {
         LEFT JOIN wishlists w 
             ON i.wishlist_id = w.wishlist_id
         WHERE i.item_id = ?
+        LIMIT 1
     `;
 
     db.query(itemSql, [id], (err, results) => {
@@ -261,10 +262,20 @@ router.patch("/:id/purchase", (req, res) => {
                 purchased_price = ?,
                 purchased_by = ?
             WHERE item_id = ?
+            AND is_purchased = 0
         `;
 
-        db.query(updateSql, [price, currentUserId, id], (updateErr) => {
-            if (updateErr) return res.status(500).send(updateErr);
+           db.query(updateSql, [price, currentUserId, id], (updateErr, updateResult) => {
+
+            if (updateErr) {
+                return res.status(500).send(updateErr);
+            }
+
+            if (updateResult.affectedRows === 0) {
+                return res.status(400).json({
+                    error: "Item already purchased"
+                });
+            }
 
             // CART ITEM ONLY
             if (!item.wishlist_id) {
@@ -308,7 +319,7 @@ router.patch("/:id/purchase", (req, res) => {
                             }
 
                             // SHARED WISHLIST
-                            const message = `${purchaserUsername} purchased ${item.product_name} from shared "${item.wishlist_name}" wishlist.`;
+                            const message = `🛒 ${purchaserUsername} purchased "${item.product_name}" from "${item.wishlist_name}".`;
 
                             const notifySql = `
                                 SELECT u.user_id, u.email
@@ -328,47 +339,43 @@ router.patch("/:id/purchase", (req, res) => {
 
                                     // INSERT NOTIFICATIONS
                                     for (const u of users) {
-                                        db.query(
-                                            `
-                                            INSERT INTO notifications
-                                            (
-                                                user_id,
-                                                message,
-                                                type,
-                                                reference_id
-                                            )
-                                            VALUES (?, ?, ?, ?)
-                                            `,
-                                            [
-                                                u.user_id,
-                                                message,
-                                                "collaboration_activity",
-                                                item.wishlist_id
-                                            ]
-                                        );
-                                    }
 
-                                    // SEND EMAILS ONCE
-                                    for (const u of users) {
-                                        try {
-                                            await sendEmail({
-                                                to: u.email,
-                                                subject:
-                                                    "Shared Wishlist Purchase",
-                                                html: `
-                                                    <div style="font-family:sans-serif;padding:30px;">
-                                                        <h2>Wishlist Update</h2>
-                                                        <p>${message}</p>
-                                                    </div>
-                                                `
-                                            });
-                                        } catch (emailErr) {
-                                            console.error(
-                                                "Email error:",
-                                                emailErr
-                                            );
-                                        }
-                                    }
+    // Insert notification
+    db.query(
+        `
+        INSERT INTO notifications
+        (
+            user_id,
+            message,
+            type,
+            reference_id
+        )
+        VALUES (?, ?, ?, ?)
+        `,
+        [
+            u.user_id,
+            message,
+            "collaboration_activity",
+            item.wishlist_id
+        ]
+    );
+
+    // Send email
+    try {
+        await sendEmail({
+            to: u.email,
+            subject: "Shared Wishlist Purchase",
+            html: `
+                <div style="font-family:sans-serif;padding:30px;">
+                    <h2>🛒 Wishlist Update</h2>
+                    <p>${message}</p>
+                </div>
+            `
+        });
+    } catch (emailErr) {
+        console.error("Email error:", emailErr);
+    }
+}
 
                                     handleCompletionCheck();
                                 }

@@ -48,7 +48,17 @@ const runPriceCheck = async () => {
 
                 /* Scrape latest price */
                 const scrapeResult = await scrapeWithFailover(item.product_url);
-                const newPrice = parseFloat(scrapeResult.data.price);
+
+                let scrapedData;
+
+                if (scrapeResult.provider === "AI") {
+                    scrapedData = scrapeResult.data;
+                } else {
+                    scrapedData = require('../utils/scraper-engine')
+                    .parseProductData(scrapeResult.html, item.product_url);
+                }
+
+                const newPrice = parseFloat(scrapedData.price);
 
                 if (!Number.isFinite(newPrice) || newPrice <= 0) {
                     console.warn(`[PriceTracker] Could not determine a valid price for item ${item.item_id}`);
@@ -76,7 +86,7 @@ const runPriceCheck = async () => {
                     const drop = (oldPrice - newPrice).toFixed(2);
 
                     const message = `
-                        💸 PRICE DROP ALERT!
+                        \uD83D\uDCC9 PRICE DROP ALERT!
                         ${item.product_name} is now $${newPrice}
                         Previously: $${oldPrice} • You saved: $${drop}
                     `;

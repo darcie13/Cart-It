@@ -21,7 +21,8 @@ const allowedOrigins = [
   "http://localhost:3001",
   "https://cart-it.app",
   "https://cart-it-pink.vercel.app",
-  "https://cart-it-aflx.onrender.com"
+  "https://cart-it-aflx.onrender.com",
+  "chrome-extension://objilaloanbgdonaepejdfeahohkknhe"
 ];
 
 app.use(cors({

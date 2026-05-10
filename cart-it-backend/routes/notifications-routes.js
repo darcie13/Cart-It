@@ -13,7 +13,7 @@ const db = require("../config/db");
 // GET notifications (supports filtering)
 router.get("/:userId", async (req, res) => {
     const { userId } = req.params;
-    const { type } = req.query; // 👈 ADD THIS
+    const { type } = req.query; 
 
     try {
         let query = `

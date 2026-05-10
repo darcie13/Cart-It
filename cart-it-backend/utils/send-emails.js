@@ -5,23 +5,33 @@ const axios = require('axios');
 
 // Sends an email using SMTP2GO API
 // Accepts recipient, subject, and HTML body
-const sendEmail = async ({ to, subject, html }) => {
+const sendEmail = async ({ to, subject, html, text }) => {
     try {
-        if (!to || !subject || !html) {
-            throw new Error("Missing email fields: to, subject, or html");
+        if (!to || !subject || !html && !text) {
+            throw new Error("Missing email fields");
         }
-
-        const response = await axios.post('https://api.smtp2go.com/v3/email/send', {
+        const payload = {
             api_key: process.env.SMTP2GO_API_KEY,
             to: [to],
             sender: process.env.EMAIL_SENDER || "Cart-It <noreply@cart-it.app>",
-            subject,
-            html_body: html
-        });
+            subject
+        };
 
-        if (process.env.NODE_ENV !== "production") {
-            console.log("[Email RESPONSE]:", response.data);
+        // Support either html or plain text
+        if (html) {
+            payload.html_body = html;
         }
+
+        if (text) {
+            payload.text_body = text;
+        }
+
+        const response = await axios.post(
+            'https://api.smtp2go.com/v3/email/send',
+            payload
+        );
+
+        console.log("[Email sent]:", response.data);
 
         return response.data;
 

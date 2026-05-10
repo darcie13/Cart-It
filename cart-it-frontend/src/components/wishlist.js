@@ -46,6 +46,7 @@ const Wishlist = () => {
   const [isConfirming, setIsConfirming] = useState(null); // State to track if the user is in the process of confirming a destructive action 
   const [isCopied, setIsCopied] = useState(false); // State to indicate whether the share link has been copied to the clipboard 
   const [errorMessage, setErrorMessage] = useState(""); // State to hold any error messages that occur during collaboration invite process 
+  const [toast, setToast] = useState(null); // Toast for completed wishlist
 
   // Handler function to add or update notes for a specific item
   const handleAddNote = async (itemId, newNote) => {
@@ -91,7 +92,16 @@ const Wishlist = () => {
   // Handler function to mark an item as purchased
   const handleMarkPurchased = async (item) => {
     try {
-      await markItemAsPurchased(item.item_id, item.price);
+      const result = await markItemAsPurchased(item.item_id, item.price);
+
+    if (result.completed) {
+      setToast({
+        type: "success",
+        message: "This wishlist is completed 🎉",
+        action: "archive",
+        wishlistId: id
+      });
+    }
       const user = JSON.parse(localStorage.getItem('user'));
       const updatedItem = {
         ...item,
