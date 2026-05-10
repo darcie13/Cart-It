@@ -196,7 +196,9 @@ export const getWishlists = async (userId) => {
   const response = await fetch(`${API_BASE}/wishlists?owner_id=${userId}`, {
     headers: { ...getAuthHeader() }
   });
-  if (!response.ok) return []; 
+  if (!response.ok) {
+    throw new Error("Failed to fetch wishlists");
+  } 
   return response.json();
 };
 

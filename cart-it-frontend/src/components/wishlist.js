@@ -244,16 +244,6 @@ const handleDeleteWishlist = async () => {
     setTimeout(() => setIsConfirming(null), 4000);
     return;
   }
-
-  try {
-    const user = JSON.parse(localStorage.getItem('user'));
-
-    await deleteWishlist(id, user.user_id);
-
-    navigate('/dashboard');
-  } catch (err) {
-    console.error("Failed to delete wishlist:", err);
-  }
 };
 
   try {
@@ -539,7 +529,7 @@ const handleDeleteWishlist = async () => {
 
         <button
           className="text-xs bg-orange-500 text-white px-3 py-1 rounded"
-          onClick={() => archiveWishlist(toast.wishlistId)}
+          onClick={() => handleArchive(toast.wishlistId)}
         >
           Archive it
         </button>
