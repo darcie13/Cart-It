@@ -22,7 +22,8 @@ import {
   deleteItemComment,
   markItemAsPurchased,
   bulkDeleteItems,
-  deleteWishlist
+  deleteWishlist,
+  archiveWishlist
 } from '../services/api';
 import '../styles/detail-view.css';
 
