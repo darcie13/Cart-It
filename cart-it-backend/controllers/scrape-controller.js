@@ -48,35 +48,37 @@ exports.previewScrape = async (req, res) => {
  * 2. Fallback to backend scraping
  */
 exports.scrapeAndSave = async (req, res) => {
-    console.log("SCRAPE REQUEST BODY:", req.body);
     const { url, user_id, wishlist_id, notes, productData } = req.body;
+    console.log("SCRAPE REQUEST BODY:", req.body);
+    console.log("[SCRAPE] Incoming request");
+    console.log("[SCRAPE] URL:", url);
+    console.log("[SCRAPE] Has extension data:", !!productData);
 
     try {
         let data;
 
         /* Priority: Using extension provided data */
       if (productData && productData.name) {
-    console.log("[Cart-It] Using extension-provided data");
+        console.log("[Cart-It] Using extension-provided data");
+        let store = null;
 
-    let store = null;
-
-    try {
-        if (url) {
-            store = new URL(url).hostname;
+        try {
+            if (url) {
+                store = new URL(url).hostname;
+            }
+        } catch (e) {
+            console.error("Invalid URL received:", url);
+            store = null;
         }
-    } catch (e) {
-        console.error("Invalid URL received:", url);
-        store = null;
-    }
 
-    data = {
+        data = {
         name: productData.name,
         price: parseFloat(
             String(productData.price || "").replace(/[^\d.]/g, "")
         ) || 0.00,
         img: productData.img,
         store: store
-    };
+        };
 
         } else {
             /* Fallback: scraping using backend providers */
@@ -115,6 +117,9 @@ exports.scrapeAndSave = async (req, res) => {
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)
         `;
 
+        console.log("[SCRAPE] Final data being saved:", data);
+        console.log("[SCRAPE] Wishlist ID:", wishlist_id);
+        console.log("[SCRAPE] User ID:", user_id);
         db.query(
             itemSql,
             [
@@ -128,7 +133,10 @@ exports.scrapeAndSave = async (req, res) => {
                 formattedNotes
             ],
             (err, result) => {
-                if (err) return res.status(500).json({ error: err.message });
+                if (err) {
+                    console.error("[DB ERROR - INSERT ITEM]", err);
+                    return res.status(500).json({ error: err.message });
+                }
 
                 const itemId = result.insertId;
 
