@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Sidebar from "./sidebar";
 import ItemDetailModal from "./item-modal";
-import { getWishlistDetails, getWishlistItems } from "../services/api";
+import { getWishlistDetails, getWishlistItems, getWishlists } from "../services/api";
 import { LuArrowLeft } from "react-icons/lu";
 import "../styles/detail-view.css";
 
@@ -42,9 +42,9 @@ const ArchivedWishlistView = () => {
   load();
 }, [id, navigate]);
 
-  if (isLoading || showLoading) {
-  return <div className="p-10 opacity-80 transition-opacity duration-300">Loading...</div>;
-}
+    if (isLoading) {
+        return <div className="p-10 opacity-80 transition-opacity duration-300">Loading...</div>;
+    }
   if (!wishlistInfo) return null;
 
   const total = items.reduce((sum, i) => sum + parseFloat(i.price || 0), 0);
@@ -52,7 +52,7 @@ const ArchivedWishlistView = () => {
   return (
     <div className="page-wrapper">
       <div className="sidebar-container-wrapper">
-        <Sidebar wishlists={sidebarWishlists} showExtension={false} />
+        <Sidebar wishlists={wishlists} showExtension={false} />
       </div>
 
       <main className="detail-main">
