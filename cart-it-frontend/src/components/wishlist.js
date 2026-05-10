@@ -104,11 +104,6 @@ const Wishlist = () => {
       });
     }
       const user = JSON.parse(localStorage.getItem('user'));
-      const updatedItem = {
-        ...item,
-        is_purchased: true,
-        purchased_by_username: user.username
-      };
       setItems(prev =>
         prev.map(i =>
           i.item_id === item.item_id

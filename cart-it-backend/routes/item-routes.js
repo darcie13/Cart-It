@@ -321,7 +321,7 @@ router.patch("/:id/purchase", (req, res) => {
                             // SHARED WISHLIST
                             const message = `${purchaserUsername} purchased "${item.product_name}" from "${item.wishlist_name}".`;
                             const notifySql = `
-                                SELECT u.user_id, u.email
+                                SELECT DISTINCT u.user_id, u.email
                                 FROM wishlist_members wm
                                 JOIN users u
                                     ON wm.user_id = u.user_id
@@ -362,48 +362,43 @@ router.patch("/:id/purchase", (req, res) => {
     // Send email
     try {
         await sendEmail({
-            to: u.email,
-            subject: "Shared Wishlist Purchase",
-            html: `html
-<div style="background:#f6f7fb;padding:40px 0;font-family:Arial,sans-serif;">
-  <div style="max-width:520px;margin:auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,0.08);">
+    to: u.email,
+    subject: "Shared Wishlist Purchase",
+    text: message,
+    html: `
+        <div style="background-color:#f9fafb;padding:40px 0;font-family:sans-serif;">
+            <div style="max-width:500px;margin:0 auto;background:#ffffff;border-radius:16px;padding:40px;">
+                
+                <h1 style="font-size:24px;color:#111827;margin-bottom:20px;">
+                    🛒 Wishlist Activity
+                </h1>
 
-    <div style="background:#DB8046;padding:20px;text-align:center;color:#fff;">
-      <h2 style="margin:0;">Cart-It Wishlist Update</h2>
-    </div>
+                <p style="font-size:16px;color:#4b5563;line-height:24px;">
+                    <strong>${purchaserUsername}</strong> purchased
+                    <strong>${item.product_name}</strong>
+                    from the wishlist
+                    <strong>${item.wishlist_name}</strong>.
+                </p>
 
-    <div style="padding:30px;text-align:center;">
-      <p style="font-size:16px;color:#333;">
-        A collaborator activity occurred in:
-      </p>
+                <div style="
+                    margin-top:24px;
+                    padding:16px;
+                    background:#fff7ed;
+                    border-radius:12px;
+                    color:#9a3412;
+                    font-weight:600;
+                ">
+                    Collaborative wishlist updated
+                </div>
 
-      <h3 style="color:#DB8046;margin:10px 0 20px;">
-        ${item.wishlist_name}
-      </h3>
+                <p style="font-size:12px;color:#9ca3af;margin-top:30px;">
+                    You're receiving this because you're a collaborator on this wishlist.
+                </p>
 
-      <p style="color:#555;font-size:15px;line-height:1.6;">
-        <strong>${purchaserUsername}</strong> purchased:
-        <br />
-        ${item.product_name}
-      </p>
-
-      <a href="https://cart-it.app/dashboard"
-        style="display:inline-block;background:#DB8046;color:#fff;
-        padding:12px 24px;border-radius:10px;text-decoration:none;font-weight:bold;margin-top:20px;">
-        Open Cart-It
-      </a>
-
-      <p style="margin-top:20px;font-size:12px;color:#999;">
-        Shared shopping made easier ✨
-      </p>
-    </div>
-
-  </div>
-</div>
-`
-
-
-        });
+            </div>
+        </div>
+    `
+});
     } catch (emailErr) {
         console.error("Email error:", emailErr);
     }
