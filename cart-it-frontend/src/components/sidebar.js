@@ -11,6 +11,10 @@ import { LuLayoutDashboard, LuShoppingCart, LuChartArea, LuLogOut, LuDownload, L
 import '../styles/sidebar.css';
 
 const Sidebar = ({ wishlists, archivedCount = 0, showExtension = false }) => {
+   const navigate = useNavigate();
+    const handleExtensionClick = () => {
+      navigate("/extension-install");
+    };
   const navigate = useNavigate();
   const handleLogOut = () => {
     // Clear web dashboard data
@@ -53,7 +57,7 @@ const Sidebar = ({ wishlists, archivedCount = 0, showExtension = false }) => {
         {showExtension && (
           <div className="extension-card">
             <p className="extension-title">Get the Extension</p>
-            <button className="extension-btn"><LuDownload size={14} /> Download</button>
+            <button className="extension-btn" onClick={handleExtensionClick}><LuDownload size={14} /> Download</button>
           </div>
         )}
         <button className="logout-btn" onClick={handleLogOut}>
