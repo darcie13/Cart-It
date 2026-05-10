@@ -13,7 +13,7 @@ const db = require("../config/db");
 // GET notifications (supports filtering)
 router.get("/:userId", async (req, res) => {
     const { userId } = req.params;
-    const { type } = req.query; 
+    const { filter } = req.query; 
 
     try {
         let query = `
@@ -23,10 +23,9 @@ router.get("/:userId", async (req, res) => {
 
         const params = [userId];
 
-        // Optional filter support
-        if (type && type !== "all") {
+        if (filter && filter !== "all") {
             query += " AND type = ?";
-            params.push(type);
+            params.push(filter);
         }
 
         query += " ORDER BY created_at DESC, notification_id DESC LIMIT 10";

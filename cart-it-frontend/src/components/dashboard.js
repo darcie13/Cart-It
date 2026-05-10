@@ -22,14 +22,20 @@ const Dashboard = () => {
   const [items, setItems] = useState([]); // Recent items for activity feed
   const [notifications, setNotifications] = useState([]); // Notifications
   const [notifFilter, setNotifFilter] = useState("all"); // Filters notification card for price drops or collaboration activity
-  const [toast, setToast] = useState(null); // Toast for completed wishlist
   const sortedNotifications = React.useMemo(() => {
-  return [...notifications].sort((a, b) => {
+  // filter the list based on the dropdown
+  let filtered = [...notifications];
+  
+  if (notifFilter !== "all") {
+    filtered = filtered.filter(n => n.type === notifFilter); 
+  }
+
+  return filtered.sort((a, b) => {
     const aDate = new Date(a.created_at).getTime();
     const bDate = new Date(b.created_at).getTime();
-    return bDate - aDate || (b.notification_id - a.notification_id);
+    return bDate - aDate;
   });
-}, [notifications]);
+}, [notifications, notifFilter]); 
 
   const timeAgo = (date) => {
     const now = new Date();
@@ -94,54 +100,6 @@ const Dashboard = () => {
     }
   };
 
-  //Refresehes wishlist when purchased item is greyed out
-  const refreshWishlists = async () => {
-  if (!user?.user_id) return;
-
-  try {
-    const data = await getWishlists(user.user_id);
-    setWishlists(data);
-  } catch (err) {
-    console.error("Wishlist refresh failed:", err);
-  }
-};
-
-// Helper for completed wishlists
-const handleWishlistCompletion = (wishlistId) => {
-  setToast({
-    type: "success",
-    message: "This wishlist is completed 🎉!",
-    action: "archive",
-    wishlistId
-  });
-};
-
-useEffect(() => {
-  if (!toast) return;
-
-  const t = setTimeout(() => setToast(null), 6000);
-  return () => clearTimeout(t);
-}, [toast]);
-
-// Helper to archive completed wishlists
-const archiveWishlist = async (id) => {
-  try {
-    await fetch(`https://cart-it-aflx.onrender.com/api/wishlists/${id}/archive`, {
-      method: "PATCH",
-      headers: {
-        'Content-Type': 'application/json',
-        ...getAuthHeader()
-      }
-    });
-
-    setToast(null);
-    await refreshWishlists();
-
-    navigate("/archive");
-  } catch (err) {
-    console.error("Archive failed", err);
-  }
-};
 
   return (
     <div className="dashboard-container">
@@ -305,23 +263,6 @@ const archiveWishlist = async (id) => {
       </div>
         </section>
 
-        {toast && ( 
-          <div className="fixed bottom-6 right-6 bg-white shadow-lg border rounded-xl p-4 z-50">
-          <p className="text-sm font-medium">{toast.message}</p>
-
-          {toast.action === "archive" && (
-            <div className="flex gap-2 mt-2">
-              <button className="text-xs bg-gray-100 px-3 py-1 rounded" onClick={() => setToast(null)} >
-                Later
-              </button>
-
-              <button className="text-xs bg-orange-500 text-white px-3 py-1 rounded" onClick={() => archiveWishlist(toast.wishlistId)}>
-                Archive it
-              </button>
-            </div>
-          )}
-        </div>
-      )}
 
         {/* Wishlist Creation Modal */}
         {isModalOpen && (

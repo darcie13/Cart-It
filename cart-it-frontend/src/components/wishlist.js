@@ -181,6 +181,15 @@ const Wishlist = () => {
     return () => clearInterval(timer);
   }, []);
 
+  // Auto hide-effect for toast
+  useEffect(() => {
+  if (!toast) return;
+
+  const t = setTimeout(() => setToast(null), 6000);
+
+  return () => clearTimeout(t);
+}, [toast]);
+
   // Function to handle selecting or deselecting all items in the wishlist for bulk actions when in edit mode
   const handleSelectAll = () => {
     if (selectedIds.length === items.length) {
@@ -223,6 +232,25 @@ const Wishlist = () => {
     setTimeout(() => setIsConfirming(null), 4000);
     return;
   }
+
+  // Handles archiving of wishlist
+  const archiveWishlist = async (wishlistId) => {
+  try {
+    await fetch(`https://cart-it-aflx.onrender.com/api/wishlists/${wishlistId}/archive`, {
+      method: "PATCH",
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+
+    setToast(null);
+
+    navigate("/archive");
+
+  } catch (err) {
+    console.error("Archive failed", err);
+  }
+};
 
   try {
     const user = JSON.parse(localStorage.getItem('user'));
@@ -491,6 +519,30 @@ const Wishlist = () => {
         )}
       </main>
 
+{/* Toast for completed wishlist*/}
+{toast && (
+  <div className="fixed bottom-6 right-6 bg-white shadow-lg border rounded-xl p-4 z-50">
+    <p className="text-sm font-medium">{toast.message}</p>
+
+    {toast.action === "archive" && (
+      <div className="flex gap-2 mt-2">
+        <button
+          className="text-xs bg-gray-100 px-3 py-1 rounded"
+          onClick={() => setToast(null)}
+        >
+          Later
+        </button>
+
+        <button
+          className="text-xs bg-orange-500 text-white px-3 py-1 rounded"
+          onClick={() => archiveWishlist(toast.wishlistId)}
+        >
+          Archive it
+        </button>
+      </div>
+    )}
+  </div>
+)}
       {/* Modal to display the details of a selected item when the user clicks on an item card */ }
       {selectedItem && (
         <ItemDetailModal
