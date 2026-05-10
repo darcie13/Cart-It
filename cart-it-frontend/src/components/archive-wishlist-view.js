@@ -1,3 +1,11 @@
+/**
+ * ArchivedWishlistView
+ * Read-only view for archived wishlists.
+ * Displays full item breakdown, pricing summary, and item grid without edit capabilities.
+ * Includes sidebar navigation and fetches both wishlist metadata and global user wishlists
+ * for consistent navigation context.
+ */
+
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Sidebar from "./sidebar";
@@ -42,9 +50,7 @@ const ArchivedWishlistView = () => {
   load();
 }, [id, navigate]);
 
-    if (isLoading) {
-        return <div className="p-10 opacity-80 transition-opacity duration-300">Loading...</div>;
-    }
+
   if (!wishlistInfo) return null;
 
   const total = items.reduce((sum, i) => sum + parseFloat(i.price || 0), 0);
@@ -56,6 +62,11 @@ const ArchivedWishlistView = () => {
       </div>
 
       <main className="detail-main">
+        {isLoading && (
+    <div className="animate-pulse text-gray-400">
+  Loading wishlist...
+</div>
+  )}
         {/* Header */}
         <header className="mb-8">
           <button onClick={() => navigate("/archive")} className="back-link">
