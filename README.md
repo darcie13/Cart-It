@@ -19,23 +19,23 @@ Cart-It/
 │
 ├── cart-it-backend/
 │ ├── config/
-| |   |__ db.js
+| |   └── db.js
 | |__ controllers/
-| |   |__ scrape-controller.js
+| |   └── scrape-controller.js
 | |__ jobs/
-| |   |__ price-tracker-job.js
+| |   └── price-tracker-job.js
 | |__ middleware/
-| |   |__ auth.js
+| |   └── auth.js
 │ ├── routes/
 | |   |__ analytics-routes.js
 | |   |__ auth-routes.js
 | |   |__ item-route.js
 | |   |__ notifications-routes.js
 | |   |__ scrape-routes.js
-| |   |__ wishlist-routes.js
+| |   └── wishlist-routes.js
 │ ├── utils/
 | |   |__ scraper-engine.js
-| |   |__ send-emails.js
+| |   └── send-emails.js
 │ ├── package-lock.json
 │ ├── package.json
 │ ├── server.js
@@ -46,7 +46,7 @@ Cart-It/
 │ ├── background.js
 │ ├── manifest.json
 │ ├── popup.html
-│ ├── popup.js
+│ └── popup.js
 |
 ├── cart-it-frontend/
 │ ├── public/
@@ -68,24 +68,27 @@ Cart-It/
 | |   |   |__ reset-password.js
 | |   |   |__ sidebar.js
 | |   |   |__ signup.js
-| |   |   |__ wishlist.js
+| |   |   └── wishlist.js
 | |   |__ services/
-| |      |__ api.js
+| |   | └── api.js
 | |   |__ styles/
-| |   |   |__ analytics.css
-| |   |   |__ archive.css
-| |   |   |__ auth.css
-| |   |   |__ dashboard.css
-| |   |   |__ detail-view.css
-| |   |   |__ item-modal.css
-| |   |   |__ landing.css
-| |   |   |__ public.css
-| |   |   |__ sidebar.css
+| |      |__ analytics.css
+| |      |__ archive.css
+| |      |__ auth.css
+| |      |__ dashboard.css
+| |      |__ detail-view.css
+| |      |__ item-modal.css
+| |      |__ landing.css
+| |      |__ public.css
+| |      └── sidebar.css
 │ ├── package.json
 │ └── package-lock.json
 │ └── postcss.config.js
 │ └── tailwind.config.js
 │
+├── database/
+│ └── database.sql
+|
 └── README.md
 ```
 ---
@@ -179,8 +182,9 @@ CREATE DATABASE cartit_db;
 ```
 
 ### 3. Import schema file:
+## To set up the database, run the script located in /database/schema.sql
 ```bash
-mysql -u root -p cartit_db < cartit_db.sql
+mysql -u root -p < database.sql
 ```
 
 ---
