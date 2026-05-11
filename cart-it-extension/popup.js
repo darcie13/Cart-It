@@ -116,11 +116,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   const productPriceEl = document.getElementById('product-price');
   const notesField = document.getElementById('notes');
 
-  const loginUrl = 'https://cart-it.app/login';
+  const loginUrlBase = 'https://cart-it.app/login';
+  const buildLoginUrl = () => `${loginUrlBase}?extension_id=${encodeURIComponent(chrome.runtime.id)}`;
 
   const showLoginUI = (message) => {
+    const loginHref = buildLoginUrl();
     loader.style.display = 'none';
-    productNameEl.innerHTML = message || `Please <a href="${loginUrl}" target="_blank">log in</a> to try Cart-It.`;
+    productNameEl.innerHTML = message || `Please <a href="${loginHref}" target="_blank">log in</a> to try Cart-It.`;
     productPriceEl.textContent = '';
     saveBtn.disabled = true;
     saveBtn.textContent = 'Log in to use Cart-It';

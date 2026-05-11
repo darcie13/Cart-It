@@ -27,19 +27,23 @@ const Login = () => {
       const data = await login(email, password); // Call the login API function
       localStorage.setItem('token', data.token); // Store the JWT token in localStorage for authenticated requests
       localStorage.setItem('user', JSON.stringify(data.user)); // Store user info in localStorage for easy access across the app
-      const extensionId = "objilaloanbgdonaepejdfeahohkknhe";
-      // Sync with browser extension
+      const urlParams = new URLSearchParams(window.location.search);
+      const extensionIdFromQuery = urlParams.get('extension_id');
+      const extensionIds = [extensionIdFromQuery, "objilaloanbgdonaepejdfeahohkknhe"].filter(Boolean);
+      // Sync with browser extension if available
       if (window.chrome && chrome.runtime && chrome.runtime.sendMessage) {
-        chrome.runtime.sendMessage(extensionId, {
-          type: "LOGIN_SUCCESS",
-          token: data.token,
-          user: data.user
-        }, (response) => {
-          if (chrome.runtime.lastError) {
-            console.log("Extension not found or inactive.");
-          } else {
-            console.log("Extension session synchronized:", response);
-          }
+        extensionIds.forEach((extensionId) => {
+          chrome.runtime.sendMessage(extensionId, {
+            type: "LOGIN_SUCCESS",
+            token: data.token,
+            user: data.user
+          }, (response) => {
+            if (chrome.runtime.lastError) {
+              console.debug(`Extension sync failed for id ${extensionId}:`, chrome.runtime.lastError.message);
+            } else {
+              console.log("Extension session synchronized:", response);
+            }
+          });
         });
       }
       navigate('/dashboard');

@@ -8,9 +8,14 @@
     "service_worker": "background.js"
   },
   "externally_connectable": {
-    "matches": ["https://cart-it-pink.vercel.app/*",
-      "https://cart-it.app/*"]
-  },
+  "matches": [
+    "http://localhost/*",
+    "http://127.0.0.1/*",
+    "https://cart-it-aflx.onrender.com/*",
+    "https://cart-it-pink.vercel.app/*",
+    "https://cart-it.app/*"
+  ]
+},
   "action": {
     "default_popup": "popup.html"
   },

@@ -21,12 +21,17 @@ const allowedOrigins = [
   "http://localhost:3001",
   "https://cart-it.app",
   "https://cart-it-pink.vercel.app",
-  "https://cart-it-aflx.onrender.com",
-  "chrome-extension://objilaloanbgdonaepejdfeahohkknhe"
+  "https://cart-it-aflx.onrender.com"
 ];
 
 app.use(cors({
-  origin: allowedOrigins,
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin) || origin.startsWith('chrome-extension://')) {
+      return callback(null, true);
+    }
+    callback(new Error(`CORS origin denied: ${origin}`));
+  },
   credentials: true
 }));
 
