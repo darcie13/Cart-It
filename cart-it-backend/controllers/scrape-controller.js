@@ -12,6 +12,17 @@
 const db = require('../config/db');
 const { scrapeWithFailover, parseProductData } = require('../utils/scraper-engine');
 
+/* Utility function to sanitize and convert price strings to numbers */
+const sanitizePrice = (rawPrice) => {
+    if (!rawPrice) return 0.00;
+
+    const cleaned = String(rawPrice).replace(/,/g, "");
+
+    const match = cleaned.match(/\d+(\.\d{1,2})?/);
+
+    return match ? Number(match[0]) : 0.00;
+};
+
 
 /* PREVIEW SCRAPE: Scrapes product data from a URL and returns it without saving.
  * Supports AI-based scraping fallback.
@@ -25,6 +36,7 @@ exports.previewScrape = async (req, res) => {
         // If AI handled extraction, use its structured data directly
         if (result.provider === "AI") {
             data = result.data;
+            data.price = sanitizePrice(data.price);
         } else {
             // Otherwise parse raw HTML
             data = parseProductData(result.html, req.body.url);
@@ -73,9 +85,7 @@ exports.scrapeAndSave = async (req, res) => {
 
         data = {
         name: productData.name,
-        price: parseFloat(
-            String(productData.price || "").replace(/[^\d.]/g, "")
-        ) || 0.00,
+        price: sanitizePrice(productData.price),
         img: productData.img,
         store: store
         };
@@ -88,8 +98,10 @@ exports.scrapeAndSave = async (req, res) => {
 
             if (result.provider === "AI") {
                 data = result.data;
+                data.price = sanitizePrice(data.price);
             } else {
                 data = parseProductData(result.html, url);
+                data.price = sanitizePrice(data.price);
             }
         }
 
