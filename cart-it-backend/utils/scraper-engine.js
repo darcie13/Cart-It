@@ -7,6 +7,30 @@
 const axios = require('axios');
 const cheerio = require('cheerio');
 
+const cleanImage = (img) => {
+    if (!img) return null;
+
+    if (
+        img.includes("logo") ||
+        img.includes("sprite") ||
+        img.includes("placeholder") ||
+        img.endsWith(".svg")
+    ) {
+        return null;
+    }
+
+    return img;
+};
+
+const sanitizePrice = (rawPrice) => {
+    if (!rawPrice) return null;
+
+    const cleaned = String(rawPrice).replace(/,/g, "");
+    const match = cleaned.match(/\d+(\.\d{1,2})?/);
+
+    return match ? Number(match[0]) : null;
+};
+
 // MAIN FAILOVER PIPELINE
 // Tries multiple scraping providers in order until valid product data is found
 const scrapeWithFailover = async (url) => {
@@ -27,12 +51,16 @@ const scrapeWithFailover = async (url) => {
         try {
             console.log(`[Cart-It] Trying ${p.name}`);
             const res = await axios.get(p.getUrl(url), { timeout: 20000 });
+
             const parsed = parseProductData(res.data, url);
+            parsed.price = sanitizePrice(parsed.price);
+            parsed.img = cleanImage(parsed.img);
 
             if (isValidProduct(parsed)) {
                 return {
                     html: res.data,
-                    provider: p.name
+                    provider: p.name,
+                    data: parsed
                 };
             }
         } catch (err) {
@@ -61,10 +89,14 @@ const scrapeWithFailover = async (url) => {
 
         const parsed = parseProductData(res.data.content, url);
 
+        parsed.price = sanitizePrice(parsed.price);
+        parsed.img = cleanImage(parsed.img);
+
         if (isValidProduct(parsed)) {
             return {
                 html: res.data.content,
-                provider: "ScrapeBadger"
+                provider: "ScrapeBadger",
+                data: parsed
             };
         }
     } catch (err) {
@@ -81,7 +113,10 @@ const scrapeWithFailover = async (url) => {
             return {
                 html: null,
                 provider: "AI",
-                data: aiData
+                data: {
+                    ...aiData,
+                    price: sanitizePrice(aiData.price)
+                }
             };
         }
     } catch (err) {
@@ -92,7 +127,6 @@ const scrapeWithFailover = async (url) => {
 };
 
 // PRODUCT VALIDATION
-// Filters out bot pages, blocked responses, and invalid products
 const isValidProduct = (d) => {
     if (!d) return false;
 
@@ -110,17 +144,10 @@ const isValidProduct = (d) => {
 
     const imgOk = !!d.img;
 
-    const priceOk =
-        d.price !== null &&
-        d.price !== undefined &&
-        d.price !== "0.00";
-
-    // Price is optional due to anti-bot restrictions on some sites
     return nameOk && imgOk;
 };
 
 // HTML PRODUCT PARSER
-// Extracts product data from structured data, meta tags, and site-specific rules
 const parseProductData = (html, url) => {
     const $ = cheerio.load(html);
     const host = new URL(url).hostname;
@@ -136,24 +163,34 @@ const parseProductData = (html, url) => {
     $('script[type="application/ld+json"]').each((_, el) => {
         try {
             const json = JSON.parse($(el).text());
-            const item = Array.isArray(json) ? json[0] : json;
 
-            const product = item?.["@graph"]
-                ? item["@graph"].find(g => g["@type"] === "Product")
-                : item;
+            const objects = Array.isArray(json) ? json : [json];
 
-            if (product) {
-                data.name = product.name || data.name;
-                data.img =
-                    typeof product.image === 'string'
-                        ? product.image
-                        : product.image?.[0] || data.img;
+            for (const obj of objects) {
+                const product =
+                    obj["@type"] === "Product"
+                        ? obj
+                        : obj?.["@graph"]?.find(g => g["@type"] === "Product");
 
-                const offer = product.offers;
-                data.price =
-                    offer?.price ||
-                    offer?.[0]?.price ||
-                    data.price;
+                if (product) {
+                    data.name = product.name || data.name;
+
+                    data.img =
+                        Array.isArray(product.image)
+                            ? product.image[0]
+                            : product.image || data.img;
+
+                    const offers = product.offers;
+
+                    data.price =
+                        offers?.price ||
+                        offers?.[0]?.price ||
+                        offers?.lowPrice ||
+                        offers?.priceRange?.low ||
+                        data.price;
+
+                    return;
+                }
             }
         } catch {}
     });
@@ -171,7 +208,6 @@ const parseProductData = (html, url) => {
 
     // 3. Site-specific parsing rules
 
-    // Amazon parsing
     if (host.includes("amazon")) {
         const priceSelectors = [
             '.a-price .a-offscreen',
@@ -190,7 +226,6 @@ const parseProductData = (html, url) => {
         }
     }
 
-    // Target parsing
     if (host.includes("target")) {
         data.name =
             data.name ||
@@ -206,7 +241,6 @@ const parseProductData = (html, url) => {
         data.price = match || data.price;
     }
 
-    // eBay parsing
     if (host.includes("ebay")) {
         const raw =
             $('.x-price-primary').text() ||
@@ -216,11 +250,13 @@ const parseProductData = (html, url) => {
         data.price = match || data.price;
     }
 
+    data.price = sanitizePrice(data.price);
+    data.img = cleanImage(data.img);
+
     return data;
 };
 
 // AI SCRAPING FALLBACK (SCRAPEBADGER)
-// Uses external API to extract structured product data when scraping fails
 const scrapeWithAI = async (url) => {
     const res = await axios.post(
         "https://scrapebadger.com/v1/web/scrape",
@@ -235,9 +271,11 @@ const scrapeWithAI = async (url) => {
             }
         }
     );
+
     if (!res.data.success || !res.data.ai_extraction) {
         throw new Error('Failed to extract product data');
     }
+
     return {
         name: res.data.ai_extraction.product_name,
         price: res.data.ai_extraction.price,
